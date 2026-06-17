@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import {
@@ -9,6 +9,7 @@ import {
   addRecurringTemplate,
   deleteRecurringTemplate,
 } from '../api/storage'
+import type { RecurringTemplate, RecurringInstance } from '../types'
 import RecurringItem from '../components/recurring/RecurringItem'
 import AddRecurringModal from '../components/recurring/AddRecurringModal'
 import { formatHUF } from '../utils/currency'
@@ -21,33 +22,37 @@ const glassCard = {
 }
 
 export default function Recurring() {
-  const { currentUserId, users, dataVersion, bumpData } = useStore()
-  const userId = currentUserId ?? users[0]?.id ?? ''
+  const { currentUserId, householdId, dataVersion, bumpData } = useStore()
   const [showAdd, setShowAdd] = useState(false)
+  const [templates, setTemplates] = useState<RecurringTemplate[]>([])
+  const [instances, setInstances] = useState<RecurringInstance[]>([])
 
   const now = new Date()
   const year = now.getFullYear()
   const month = now.getMonth() + 1
 
-  const templates = useMemo(() => getRecurringTemplates(), [dataVersion])
-  const instances = useMemo(() => getRecurringInstances(), [dataVersion])
+  useEffect(() => {
+    getRecurringTemplates().then(setTemplates).catch(console.error)
+    getRecurringInstances().then(setInstances).catch(console.error)
+  }, [dataVersion])
 
   const isPaid = (templateId: string) =>
     instances.some(
       (i) => i.templateId === templateId && i.year === year && i.month === month && i.paidAt,
     )
 
-  function handleTogglePaid(templateId: string) {
+  async function handleTogglePaid(templateId: string) {
+    if (!currentUserId) return
     if (isPaid(templateId)) {
-      unmarkRecurringPaid(templateId, year, month)
+      await unmarkRecurringPaid(templateId, year, month)
     } else {
-      markRecurringPaid(templateId, year, month, userId)
+      await markRecurringPaid(templateId, year, month, currentUserId)
     }
     bumpData()
   }
 
-  function handleDelete(id: string) {
-    deleteRecurringTemplate(id)
+  async function handleDelete(id: string) {
+    await deleteRecurringTemplate(id)
     bumpData()
   }
 
@@ -55,12 +60,10 @@ export default function Recurring() {
   const total = active.reduce((s, t) => s + t.amount, 0)
   const paid = active.filter((t) => isPaid(t.id)).reduce((s, t) => s + t.amount, 0)
   const remaining = total - paid
-
   const monthLabel = now.toLocaleDateString('hu-HU', { year: 'numeric', month: 'long' })
 
   return (
     <div className="min-h-dvh px-4 pt-14">
-      {/* Header */}
       <div className="mb-6">
         <p className="text-white/50 text-xs font-medium uppercase tracking-widest mb-1">{monthLabel}</p>
         <div className="flex justify-between items-center mb-5">
@@ -88,7 +91,6 @@ export default function Recurring() {
         </div>
       </div>
 
-      {/* List */}
       {active.length > 0 ? (
         <div className="rounded-2xl overflow-hidden" style={glassCard}>
           <div className="divide-y divide-white/8">
@@ -121,15 +123,15 @@ export default function Recurring() {
         </div>
       )}
 
-      {showAdd && (
+      {showAdd && householdId && currentUserId && (
         <AddRecurringModal
           onClose={() => setShowAdd(false)}
-          onAdd={(t) => {
-            addRecurringTemplate(t)
+          onAdd={async (t) => {
+            await addRecurringTemplate(t, householdId)
             bumpData()
             setShowAdd(false)
           }}
-          userId={userId}
+          userId={currentUserId}
         />
       )}
     </div>

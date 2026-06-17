@@ -1,6 +1,7 @@
-import { useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { useStore } from '../store/useStore'
 import { getTransactions, getRecurringTemplates, getRecurringInstances } from '../api/storage'
+import type { Transaction, RecurringTemplate, RecurringInstance } from '../types'
 import UserSwitcher from '../components/layout/UserSwitcher'
 import UpcomingRecurring from '../components/dashboard/UpcomingRecurring'
 import TransactionCard from '../components/transactions/TransactionCard'
@@ -22,10 +23,15 @@ const glassStrong = {
 
 export default function Home() {
   const { dataVersion } = useStore()
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [templates, setTemplates] = useState<RecurringTemplate[]>([])
+  const [instances, setInstances] = useState<RecurringInstance[]>([])
 
-  const transactions = useMemo(() => getTransactions(), [dataVersion])
-  const templates = useMemo(() => getRecurringTemplates(), [dataVersion])
-  const instances = useMemo(() => getRecurringInstances(), [dataVersion])
+  useEffect(() => {
+    getTransactions().then(setTransactions).catch(console.error)
+    getRecurringTemplates().then(setTemplates).catch(console.error)
+    getRecurringInstances().then(setInstances).catch(console.error)
+  }, [dataVersion])
 
   const now = new Date()
   const currentMonth = now.getMonth() + 1
@@ -43,7 +49,6 @@ export default function Home() {
 
   return (
     <div className="min-h-dvh px-4 pt-14">
-      {/* Top bar */}
       <div className="flex justify-between items-center mb-8">
         <div>
           <p className="text-white/50 text-xs font-medium uppercase tracking-widest">
@@ -54,7 +59,6 @@ export default function Home() {
         <UserSwitcher />
       </div>
 
-      {/* Balance hero */}
       <div className="mb-6">
         <p className="text-white/60 text-sm mb-1">Havi egyenleg</p>
         <p
@@ -63,7 +67,6 @@ export default function Home() {
         >
           {formatHUF(balance)}
         </p>
-
         <div className="flex gap-3">
           <div className="flex-1 rounded-2xl p-4" style={glassCard}>
             <p className="text-white/60 text-xs mb-1">↑ Bevétel</p>
@@ -76,7 +79,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Upcoming recurring */}
       <UpcomingRecurring
         templates={templates}
         instances={instances}
@@ -84,7 +86,6 @@ export default function Home() {
         month={currentMonth}
       />
 
-      {/* Recent transactions */}
       {recent.length > 0 ? (
         <div className="rounded-2xl overflow-hidden mt-4" style={glassStrong}>
           <div className="px-4 pt-4 pb-2">

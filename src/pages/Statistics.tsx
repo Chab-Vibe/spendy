@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { getTransactions } from '../api/storage'
 import { useStore } from '../store/useStore'
+import type { Transaction } from '../types'
 import CategoryPieChart from '../components/statistics/CategoryPieChart'
 import TrendBarChart from '../components/statistics/TrendBarChart'
 import { formatHUF } from '../utils/currency'
@@ -15,7 +16,11 @@ const glassCard = {
 export default function Statistics() {
   const [period, setPeriod] = useState<'week' | 'month'>('month')
   const dataVersion = useStore((s) => s.dataVersion)
-  const allTransactions = useMemo(() => getTransactions(), [dataVersion])
+  const [allTransactions, setAllTransactions] = useState<Transaction[]>([])
+
+  useEffect(() => {
+    getTransactions().then(setAllTransactions).catch(console.error)
+  }, [dataVersion])
 
   const now = new Date()
   const filtered = useMemo(() => {
@@ -36,12 +41,10 @@ export default function Statistics() {
 
   return (
     <div className="min-h-dvh px-4 pt-14">
-      {/* Header */}
       <div className="mb-6">
         <p className="text-white/50 text-xs font-medium uppercase tracking-widest mb-1">Pénzügyek</p>
         <h1 className="text-white text-2xl font-bold mb-5">Statisztika</h1>
 
-        {/* Period toggle */}
         <div
           className="flex rounded-2xl p-1 mb-5"
           style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}
@@ -62,7 +65,6 @@ export default function Statistics() {
           ))}
         </div>
 
-        {/* Summary cards */}
         <div className="flex gap-3">
           {[
             { label: '↑ Bevétel', value: income, color: '#4ade80' },
@@ -77,7 +79,6 @@ export default function Statistics() {
         </div>
       </div>
 
-      {/* Charts */}
       {expenses.length > 0 ? (
         <div className="space-y-4">
           <CategoryPieChart transactions={expenses} />

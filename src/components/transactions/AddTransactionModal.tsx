@@ -3,7 +3,7 @@ import { X, Camera } from 'lucide-react'
 import { useStore } from '../../store/useStore'
 import { addTransaction } from '../../api/storage'
 import { analyzeReceipt } from '../../api/claude'
-import type { Transaction, Category, TransactionType } from '../../types'
+import type { Category, TransactionType } from '../../types'
 import { CATEGORIES } from '../../utils/categories'
 
 const modalBg = {
@@ -19,8 +19,7 @@ const inputStyle = {
 }
 
 export default function AddTransactionModal() {
-  const { setShowAddModal, currentUserId, users, bumpData } = useStore()
-  const user = users.find((u) => u.id === currentUserId) ?? users[0]
+  const { setShowAddModal, currentUserId, householdId, bumpData } = useStore()
 
   const [type, setType] = useState<TransactionType>('expense')
   const [amount, setAmount] = useState('')
@@ -50,22 +49,22 @@ export default function AddTransactionModal() {
     }
   }
 
-  function handleSave() {
+  async function handleSave() {
     const amountNum = parseInt(amount.replace(/\D/g, ''), 10)
-    if (!amountNum || !user) return
+    if (!amountNum || !currentUserId || !householdId) return
 
-    const tx: Transaction = {
-      id: crypto.randomUUID(),
-      userId: user.id,
-      type,
-      amount: amountNum,
-      category: type === 'income' ? 'egyéb' : category,
-      description: description.trim(),
-      date,
-      aiAnalyzed: false,
-      createdAt: new Date().toISOString(),
-    }
-    addTransaction(tx)
+    await addTransaction(
+      {
+        userId: currentUserId,
+        type,
+        amount: amountNum,
+        category: type === 'income' ? 'egyéb' : category,
+        description: description.trim(),
+        date,
+        aiAnalyzed: false,
+      },
+      householdId,
+    )
     bumpData()
     setShowAddModal(false)
   }
@@ -81,10 +80,8 @@ export default function AddTransactionModal() {
         className="relative w-full max-w-[430px] mx-auto rounded-t-3xl p-6 pb-10 max-h-[90dvh] overflow-y-auto"
         style={modalBg}
       >
-        {/* Handle */}
         <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5" />
 
-        {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-lg font-bold text-white">Új tétel</h2>
           <button onClick={() => setShowAddModal(false)} className="p-1 -mr-1">
@@ -183,7 +180,7 @@ export default function AddTransactionModal() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="w-full rounded-xl px-4 py-3 text-white text-sm focus:outline-none"
-            style={{ ...inputStyle, '::placeholder': { color: 'rgba(255,255,255,0.3)' } } as React.CSSProperties}
+            style={inputStyle}
           />
         </div>
 
@@ -202,7 +199,7 @@ export default function AddTransactionModal() {
         {/* Save */}
         <button
           onClick={handleSave}
-          disabled={!amount || !user}
+          disabled={!amount || !currentUserId || !householdId}
           className="w-full rounded-2xl py-4 font-semibold text-base text-white disabled:opacity-30 active:scale-95 transition-transform"
           style={{
             background: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)',

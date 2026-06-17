@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getTransactions } from '../api/storage'
 import { useStore } from '../store/useStore'
+import type { Transaction } from '../types'
 import TransactionCard from '../components/transactions/TransactionCard'
 import { CATEGORIES } from '../utils/categories'
 import type { Category } from '../types'
@@ -25,7 +26,11 @@ export default function Transactions() {
   const [filter, setFilter] = useState<Category | 'all'>('all')
   const [typeFilter, setTypeFilter] = useState<'all' | 'expense' | 'income'>('all')
   const dataVersion = useStore((s) => s.dataVersion)
-  const allTransactions = useMemo(() => getTransactions(), [dataVersion])
+  const [allTransactions, setAllTransactions] = useState<Transaction[]>([])
+
+  useEffect(() => {
+    getTransactions().then(setAllTransactions).catch(console.error)
+  }, [dataVersion])
 
   const filtered = allTransactions.filter((t) => {
     const catOk = filter === 'all' || t.category === filter
@@ -39,7 +44,6 @@ export default function Transactions() {
         <p className="text-white/50 text-xs font-medium uppercase tracking-widest mb-1">Előzmények</p>
         <h1 className="text-white text-2xl font-bold mb-5">Tranzakciók</h1>
 
-        {/* Type filter */}
         <div className="flex gap-2 mb-3">
           {([
             { key: 'all', label: 'Összes' },
@@ -57,7 +61,6 @@ export default function Transactions() {
           ))}
         </div>
 
-        {/* Category filter */}
         <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
           <button
             onClick={() => setFilter('all')}
