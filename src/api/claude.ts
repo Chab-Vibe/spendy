@@ -1,8 +1,13 @@
-export interface ReceiptAnalysis {
+export interface ReceiptLineItem {
   amount: number
-  description: string
   category: string
+  description: string
+}
+
+export interface ReceiptAnalysis {
   storeName?: string
+  lineItems: ReceiptLineItem[]
+  totalAmount: number
 }
 
 export async function analyzeReceipt(imageBase64: string): Promise<ReceiptAnalysis> {
@@ -19,7 +24,7 @@ export async function analyzeReceipt(imageBase64: string): Promise<ReceiptAnalys
     },
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 256,
+      max_tokens: 512,
       messages: [
         {
           role: 'user',
@@ -30,14 +35,18 @@ export async function analyzeReceipt(imageBase64: string): Promise<ReceiptAnalys
             },
             {
               type: 'text',
-              text: `Elemezd ezt a blokkot/nyugtát. Válaszolj kizárólag JSON formátumban, semmi más szöveg:
+              text: `Elemezd ezt a blokkot/számla-fotót. Sorold fel a tételeket kategóriánként összegezve.
+Válaszolj kizárólag JSON formátumban, más szöveg nélkül:
 {
-  "amount": <végösszeg egész számban forintban>,
-  "storeName": "<üzlet/szolgáltató neve>",
-  "description": "<rövid leírás magyarul, max 40 karakter>",
-  "category": "<egy a következők közül: élelmiszer, rezsi, lakás, közlekedés, egészség, szórakozás, ruha, egyéb>"
+  "storeName": "bolt neve ha látható, egyébként null",
+  "lineItems": [
+    { "category": "élelmiszer", "amount": 4500, "description": "Élelmiszer tételek" },
+    { "category": "egyéb", "amount": 1200, "description": "Tisztítószer" }
+  ],
+  "totalAmount": 5700
 }
-Ha nem látható egyértelműen a végösszeg, az amount legyen 0.`,
+Elérhető kategóriák (csak ezek egyikét használd minden tételnél): élelmiszer, rezsi, lakás, közlekedés, egészség, szórakozás, ruha, egyéb.
+Az amount értékek egész számok forintban. Ha nem látható egyértelműen egy összeg, az amount legyen 0.`,
             },
           ],
         },
