@@ -39,10 +39,11 @@ export default function AddTransactionModal() {
   async function handleImageCapture(file: File) {
     setAnalyzing(true)
     setScanError('')
-    setFileInputKey((k) => k + 1)
     try {
       const base64 = await fileToBase64(file)
-      const result = await analyzeReceipt(base64, file.type || 'image/jpeg')
+      const supported = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+      const mimeType = supported.includes(file.type) ? file.type : 'image/jpeg'
+      const result = await analyzeReceipt(base64, mimeType)
       const validIds: string[] = CATEGORIES.map((c) => c.id)
       const items = (result.lineItems ?? []).map((item) => ({
         ...item,
@@ -59,6 +60,7 @@ export default function AddTransactionModal() {
       setScanError(err.message === 'NO_API_KEY' ? 'Hiányzó API kulcs (VITE_ANTHROPIC_API_KEY)' : `Hiba: ${err.message}`)
     } finally {
       setAnalyzing(false)
+      setFileInputKey((k) => k + 1)
     }
   }
 
