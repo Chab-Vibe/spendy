@@ -35,18 +35,21 @@ export async function analyzeReceipt(imageBase64: string): Promise<ReceiptAnalys
             },
             {
               type: 'text',
-              text: `Elemezd ezt a blokkot/számla-fotót. Sorold fel a tételeket kategóriánként összegezve.
+              text: `Elemezd ezt a blokkot/számla-fotót. NE listázd az egyes tételeket — helyette összegezd a végösszeget kategóriánként.
+Pl. ha egy 10000 Ft-os Lidl blokkon 7000 Ft élelmiszer és 3000 Ft tisztítószer van, akkor:
+lineItems: [{ category: "élelmiszer", amount: 7000 }, { category: "egyéb", amount: 3000 }]
+
 Válaszolj kizárólag JSON formátumban, más szöveg nélkül:
 {
   "storeName": "bolt neve ha látható, egyébként null",
   "lineItems": [
-    { "category": "élelmiszer", "amount": 4500, "description": "Élelmiszer tételek" },
-    { "category": "egyéb", "amount": 1200, "description": "Tisztítószer" }
+    { "category": "élelmiszer", "amount": 7000, "description": "Élelmiszer" },
+    { "category": "egyéb", "amount": 3000, "description": "Tisztítószer, egyéb" }
   ],
-  "totalAmount": 5700
+  "totalAmount": 10000
 }
-Elérhető kategóriák (csak ezek egyikét használd minden tételnél): élelmiszer, rezsi, lakás, közlekedés, egészség, szórakozás, ruha, egyéb.
-Az amount értékek egész számok forintban. Ha nem látható egyértelműen egy összeg, az amount legyen 0.`,
+Elérhető kategóriák (csak ezek egyikét használd): élelmiszer, rezsi, lakás, közlekedés, egészség, szórakozás, ruha, egyéb.
+Az amount értékek egész számok forintban. Csak azokat a kategóriákat szerepeltesd, amelyekre ténylegesen van tétel.`,
             },
           ],
         },

@@ -333,7 +333,11 @@ export default function AddTransactionModal() {
                   accept="image/*"
                   capture="environment"
                   className="hidden"
-                  onChange={(e) => e.target.files?.[0] && handleImageCapture(e.target.files[0])}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    e.target.value = ''
+                    if (file) handleImageCapture(file)
+                  }}
                 />
               </div>
               <input
