@@ -411,6 +411,11 @@ export default function Settings() {
         </div>
       </section>
 
+      {/* Verzió */}
+      <p className="text-center text-gray-400 text-xs mt-8">
+        Spendy v{__APP_VERSION__} · {__BUILD_TIME__}
+      </p>
+
       {/* Megerősítő modal */}
       {confirm && (
         <div
