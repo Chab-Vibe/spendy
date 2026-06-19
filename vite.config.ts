@@ -9,12 +9,16 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+      },
       manifest: {
         name: 'Spendy',
         short_name: 'Spendy',
         description: 'Kiadás-bevétel követő',
-        theme_color: '#5B4FCF',
-        background_color: '#F0F2F5',
+        theme_color: '#1a9460',
+        background_color: '#f0f9f4',
         display: 'standalone',
         orientation: 'portrait',
         icons: [
