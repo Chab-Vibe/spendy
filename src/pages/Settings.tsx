@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Copy, Check, Share2, LogOut, ArrowLeft } from 'lucide-react'
+import {
+  Copy, Check, Share2, LogOut, ArrowLeft,
+  UserMinus, AlertTriangle, Trash2, Plus,
+} from 'lucide-react'
 import { useStore } from '../store/useStore'
 import { supabase } from '../lib/supabase'
-import { updateProfile, getHouseholdInviteCode } from '../api/storage'
+import { updateProfile, getHouseholdInviteCode, getHouseholdProfiles } from '../api/storage'
 
 const COLORS = [
   '#a78bfa', '#34d399', '#f87171', '#fbbf24',
@@ -23,6 +26,12 @@ const inputStyle = {
   color: '#111827',
 }
 
+type ConfirmAction =
+  | { type: 'remove'; userId: string; name: string }
+  | { type: 'new-household' }
+  | { type: 'delete-account' }
+  | null
+
 export default function Settings() {
   const navigate = useNavigate()
   const { users, currentUserId, householdId, setUsers, bumpData } = useStore()
@@ -41,6 +50,10 @@ export default function Settings() {
   const [passwordSaving, setPasswordSaving] = useState(false)
   const [passwordError, setPasswordError] = useState('')
   const [passwordSaved, setPasswordSaved] = useState(false)
+
+  const [confirm, setConfirm] = useState<ConfirmAction>(null)
+  const [actionLoading, setActionLoading] = useState(false)
+  const [actionError, setActionError] = useState('')
 
   useEffect(() => {
     if (householdId) getHouseholdInviteCode(householdId).then(setInviteCode)
@@ -87,6 +100,43 @@ export default function Settings() {
       setPasswordError((err as Error).message ?? 'Hiba történt.')
     } finally {
       setPasswordSaving(false)
+    }
+  }
+
+  async function handleConfirm() {
+    if (!confirm) return
+    setActionLoading(true)
+    setActionError('')
+    try {
+      if (confirm.type === 'remove') {
+        const { error: err } = await supabase.rpc('remove_household_member', {
+          p_member_id: confirm.userId,
+        })
+        if (err) throw err
+        if (householdId) {
+          const members = await getHouseholdProfiles(householdId)
+          setUsers(members)
+          bumpData()
+        }
+        setConfirm(null)
+      } else if (confirm.type === 'new-household') {
+        const { data, error: err } = await supabase.rpc('create_household', {
+          p_name: me?.name ?? 'Én',
+          p_color: me?.color ?? COLORS[0],
+        })
+        if (err) throw err
+        const result = data as { error?: string } | null
+        if (result?.error) throw new Error(result.error)
+        window.location.reload()
+      } else if (confirm.type === 'delete-account') {
+        const { error: err } = await supabase.rpc('delete_own_account')
+        if (err) throw err
+        await supabase.auth.signOut()
+      }
+    } catch (err: unknown) {
+      setActionError((err as Error).message ?? 'Hiba történt.')
+    } finally {
+      setActionLoading(false)
     }
   }
 
@@ -195,10 +245,18 @@ export default function Settings() {
                 {u.name[0]?.toUpperCase()}
               </div>
               <span className="text-sm text-gray-800 flex-1">{u.name}</span>
-              {u.id === currentUserId && (
+              {u.id === currentUserId ? (
                 <span className="text-xs text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">
                   te
                 </span>
+              ) : (
+                <button
+                  onClick={() => setConfirm({ type: 'remove', userId: u.id, name: u.name })}
+                  className="p-1.5 rounded-lg text-gray-300 active:bg-red-50 active:text-red-400 transition-colors"
+                  aria-label={`${u.name} eltávolítása`}
+                >
+                  <UserMinus size={15} />
+                </button>
               )}
             </div>
           ))}
@@ -298,7 +356,23 @@ export default function Settings() {
         </div>
       </section>
 
-      {/* Kijelentkezés */}
+      {/* Háztartás kezelés */}
+      <section className="mb-6">
+        <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3 px-1">
+          Háztartás
+        </p>
+        <div className="rounded-2xl overflow-hidden" style={card}>
+          <button
+            onClick={() => setConfirm({ type: 'new-household' })}
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-sm text-gray-700 active:bg-gray-50 transition-colors"
+          >
+            <Plus size={16} className="text-gray-400" />
+            <span>Új háztartás létrehozása</span>
+          </button>
+        </div>
+      </section>
+
+      {/* Fiók */}
       <section>
         <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3 px-1">
           Fiók
@@ -306,13 +380,79 @@ export default function Settings() {
         <div className="rounded-2xl overflow-hidden" style={card}>
           <button
             onClick={() => supabase.auth.signOut()}
-            className="w-full flex items-center gap-3 px-4 py-3.5 text-red-500 text-sm active:bg-red-50 transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-red-500 text-sm active:bg-red-50 transition-colors border-b border-gray-50"
           >
             <LogOut size={16} />
             <span>Kijelentkezés</span>
           </button>
+          <button
+            onClick={() => setConfirm({ type: 'delete-account' })}
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-red-500 text-sm active:bg-red-50 transition-colors"
+          >
+            <Trash2 size={16} />
+            <span>Fiók törlése</span>
+          </button>
         </div>
       </section>
+
+      {/* Megerősítő modal */}
+      {confirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center pb-8 px-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) { setConfirm(null); setActionError('') }
+          }}
+          style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
+        >
+          <div
+            className="w-full max-w-sm rounded-3xl p-6 space-y-4"
+            style={{ background: '#ffffff', boxShadow: '0 16px 64px rgba(0,0,0,0.2)' }}
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-red-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <AlertTriangle size={18} className="text-red-500" />
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 text-sm">
+                  {confirm.type === 'remove' && `${confirm.name} eltávolítása`}
+                  {confirm.type === 'new-household' && 'Új háztartás létrehozása'}
+                  {confirm.type === 'delete-account' && 'Fiók törlése'}
+                </p>
+                <p className="text-gray-500 text-xs mt-1 leading-relaxed">
+                  {confirm.type === 'remove' &&
+                    `Eltávolítod ${confirm.name}-t a háztartásból. Ezután nem fogja látni a közös adatokat.`}
+                  {confirm.type === 'new-household' &&
+                    'Elhagyod a jelenlegi háztartást és teljesen újat hozol létre. A jelenlegi adatokhoz nem lesz hozzáférésed.'}
+                  {confirm.type === 'delete-account' &&
+                    'Véglegesen törlöd a fiókodat. Ez nem visszavonható.'}
+                </p>
+              </div>
+            </div>
+            {actionError && <p className="text-red-500 text-xs">{actionError}</p>}
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setConfirm(null); setActionError('') }}
+                disabled={actionLoading}
+                className="flex-1 rounded-xl py-3 text-sm font-semibold text-gray-600 active:scale-95 transition-all"
+                style={{ background: '#f3f4f6' }}
+              >
+                Mégse
+              </button>
+              <button
+                onClick={handleConfirm}
+                disabled={actionLoading}
+                className="flex-1 rounded-xl py-3 text-sm font-semibold text-white active:scale-95 transition-all"
+                style={{
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  boxShadow: '0 4px 16px rgba(239,68,68,0.3)',
+                }}
+              >
+                {actionLoading ? '...' : confirm.type === 'delete-account' ? 'Törlés' : 'Igen, folytatom'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
