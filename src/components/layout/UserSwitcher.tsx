@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { ChevronDown, LogOut } from 'lucide-react'
+import { ChevronDown, LogOut, Settings } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore'
 import { supabase } from '../../lib/supabase'
 
 export default function UserSwitcher() {
   const { users, currentUserId } = useStore()
   const [open, setOpen] = useState(false)
+  const navigate = useNavigate()
   const current = users.find((u) => u.id === currentUserId) ?? users[0]
 
   if (!current) return null
@@ -59,6 +61,13 @@ export default function UserSwitcher() {
               </div>
             ))}
             <div className="mx-2 my-1.5 h-px bg-gray-100" />
+            <button
+              onClick={() => { navigate('/settings'); setOpen(false) }}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-gray-700 transition-all active:scale-95"
+            >
+              <Settings size={14} className="text-gray-400" />
+              <span>Beállítások</span>
+            </button>
             <button
               onClick={handleLogout}
               className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-red-500 transition-all active:scale-95"

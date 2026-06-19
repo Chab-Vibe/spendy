@@ -10,6 +10,7 @@ import Home from './pages/Home'
 import Statistics from './pages/Statistics'
 import Transactions from './pages/Transactions'
 import Recurring from './pages/Recurring'
+import Settings from './pages/Settings'
 import BottomNav from './components/layout/BottomNav'
 import AddTransactionModal from './components/transactions/AddTransactionModal'
 
@@ -97,6 +98,7 @@ export default function App() {
           <Route path="/statistics" element={<Statistics />} />
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/recurring" element={<Recurring />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <BottomNav />

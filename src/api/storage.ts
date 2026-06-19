@@ -135,6 +135,23 @@ export async function getHouseholdProfiles(householdId: string) {
   return (data ?? []) as { id: string; name: string; color: string }[]
 }
 
+export async function updateProfile(userId: string, name: string, color: string): Promise<void> {
+  const { error } = await supabase
+    .from('profiles')
+    .update({ name, color })
+    .eq('id', userId)
+  if (error) throw error
+}
+
+export async function getHouseholdInviteCode(householdId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from('households')
+    .select('invite_code')
+    .eq('id', householdId)
+    .single()
+  return (data as { invite_code: string } | null)?.invite_code ?? null
+}
+
 // ── Row mappers ───────────────────────────────────────────────
 
 function rowToTransaction(r: Record<string, unknown>): Transaction {
