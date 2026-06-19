@@ -12,7 +12,7 @@ body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   min-height: 100%;
-  background: linear-gradient(160deg, #1a0e3f 0%, #3b1d8c 30%, #6d28d9 65%, #4c1d95 100%);
+  background: #f0f9f4;
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -24,12 +24,13 @@ body {
   min-height: 100dvh;
   position: relative;
   overflow-x: hidden;
+  background: #f0f9f4;
 }
 
-/* Desktop: app column gets a subtle glow */
+/* Desktop: subtle green-tinted shadow */
 @media (min-width: 480px) {
   #root {
-    box-shadow: 0 0 120px rgba(109, 40, 217, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 80px rgba(26, 148, 96, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
   }
 }
 

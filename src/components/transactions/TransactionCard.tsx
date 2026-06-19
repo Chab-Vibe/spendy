@@ -19,22 +19,22 @@ export default function TransactionCard({ transaction: t, onEdit, onDelete }: Pr
   return (
     <div>
       <div
-        className="flex items-center gap-3 px-4 py-3 active:bg-white/5 transition-colors cursor-pointer"
+        className="flex items-center gap-3 px-4 py-3 active:bg-gray-50 transition-colors cursor-pointer"
         onClick={() => setExpanded((v) => !v)}
       >
         <div
           className="w-10 h-10 rounded-full flex items-center justify-center text-xl flex-shrink-0"
-          style={{ background: `${cat.color}25` }}
+          style={{ background: `${cat.color}20` }}
         >
           {cat.icon}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-white truncate">
+          <p className="text-sm font-medium text-gray-800 truncate">
             {t.description || cat.label}
           </p>
-          <p className="text-xs text-white/40">{date}</p>
+          <p className="text-xs text-gray-400">{date}</p>
         </div>
-        <span className="font-semibold text-sm" style={{ color: isIncome ? '#4ade80' : '#f87171' }}>
+        <span className="font-semibold text-sm" style={{ color: isIncome ? '#16a34a' : '#ef4444' }}>
           {isIncome ? '+' : '-'}{formatHUF(t.amount)}
         </span>
       </div>
@@ -45,7 +45,7 @@ export default function TransactionCard({ transaction: t, onEdit, onDelete }: Pr
             <button
               onClick={(e) => { e.stopPropagation(); onEdit(); setExpanded(false) }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium active:scale-95 transition-all"
-              style={{ background: 'rgba(167,139,250,0.15)', color: '#c4b5fd', border: '1px solid rgba(167,139,250,0.3)' }}
+              style={{ background: '#f0fdf4', color: '#16a34a', border: '1px solid #86efac' }}
             >
               <Pencil size={12} /> Szerkesztés
             </button>
@@ -54,7 +54,7 @@ export default function TransactionCard({ transaction: t, onEdit, onDelete }: Pr
             <button
               onClick={(e) => { e.stopPropagation(); onDelete(); setExpanded(false) }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium active:scale-95 transition-all"
-              style={{ background: 'rgba(248,113,113,0.15)', color: '#f87171', border: '1px solid rgba(248,113,113,0.3)' }}
+              style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca' }}
             >
               <Trash2 size={12} /> Törlés
             </button>

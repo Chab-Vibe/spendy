@@ -6,15 +6,15 @@ import type { Category, Transaction, TransactionType } from '../../types'
 import { CATEGORIES } from '../../utils/categories'
 
 const modalBg = {
-  background: 'rgba(15, 8, 45, 0.92)',
-  backdropFilter: 'blur(50px)',
-  WebkitBackdropFilter: 'blur(50px)',
-  borderTop: '1px solid rgba(255,255,255,0.15)',
+  background: '#ffffff',
+  borderTop: '1px solid #e5e7eb',
+  boxShadow: '0 -8px 40px rgba(0,0,0,0.12)',
 }
 
 const inputStyle = {
-  background: 'rgba(255,255,255,0.08)',
-  border: '1px solid rgba(255,255,255,0.15)',
+  background: '#f9fafb',
+  border: '1px solid #e5e7eb',
+  color: '#111827',
 }
 
 interface Props {
@@ -56,7 +56,7 @@ export default function EditTransactionModal({ transaction, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-end">
       <div
-        className="absolute inset-0 bg-black/60"
+        className="absolute inset-0 bg-black/40"
         style={{ backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}
         onClick={onClose}
       />
@@ -64,19 +64,19 @@ export default function EditTransactionModal({ transaction, onClose }: Props) {
         className="relative w-full max-w-[430px] mx-auto rounded-t-3xl p-6 pb-10 max-h-[90dvh] overflow-y-auto"
         style={modalBg}
       >
-        <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5" />
+        <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
 
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-bold text-white">Tétel szerkesztése</h2>
+          <h2 className="text-lg font-bold text-gray-900">Tétel szerkesztése</h2>
           <button onClick={onClose} className="p-1 -mr-1">
-            <X size={20} className="text-white/50" />
+            <X size={20} className="text-gray-400" />
           </button>
         </div>
 
         {/* Type toggle */}
         <div
           className="flex rounded-2xl p-1 mb-6"
-          style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
+          style={{ background: '#f3f4f6', border: '1px solid #e5e7eb' }}
         >
           {(['expense', 'income'] as TransactionType[]).map((t) => (
             <button
@@ -86,11 +86,11 @@ export default function EditTransactionModal({ transaction, onClose }: Props) {
               style={
                 type === t
                   ? {
-                      background: t === 'expense' ? 'rgba(248,113,113,0.3)' : 'rgba(74,222,128,0.3)',
-                      color: t === 'expense' ? '#fca5a5' : '#86efac',
-                      border: `1px solid ${t === 'expense' ? 'rgba(248,113,113,0.4)' : 'rgba(74,222,128,0.4)'}`,
+                      background: t === 'expense' ? '#fef2f2' : '#f0fdf4',
+                      color: t === 'expense' ? '#ef4444' : '#16a34a',
+                      border: `1px solid ${t === 'expense' ? '#fecaca' : '#86efac'}`,
                     }
-                  : { color: 'rgba(255,255,255,0.4)' }
+                  : { color: '#9ca3af' }
               }
             >
               {t === 'expense' ? '↓ Kiadás' : '↑ Bevétel'}
@@ -100,22 +100,22 @@ export default function EditTransactionModal({ transaction, onClose }: Props) {
 
         {/* Amount */}
         <div className="mb-5">
-          <label className="text-white/50 text-xs mb-2 block">Összeg (Ft)</label>
+          <label className="text-gray-500 text-xs mb-2 block">Összeg (Ft)</label>
           <input
             type="number"
             inputMode="numeric"
             placeholder="0"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full text-4xl font-bold text-white bg-transparent pb-2 focus:outline-none"
-            style={{ borderBottom: '2px solid rgba(167,139,250,0.6)' }}
+            className="w-full text-4xl font-bold text-gray-900 bg-transparent pb-2 focus:outline-none"
+            style={{ borderBottom: '2px solid #1a9460' }}
           />
         </div>
 
         {/* Category */}
         {type === 'expense' && (
           <div className="mb-5">
-            <label className="text-white/50 text-xs mb-2 block">Kategória</label>
+            <label className="text-gray-500 text-xs mb-2 block">Kategória</label>
             <div className="grid grid-cols-4 gap-2">
               {CATEGORIES.map((cat) => (
                 <button
@@ -124,8 +124,8 @@ export default function EditTransactionModal({ transaction, onClose }: Props) {
                   className="flex flex-col items-center gap-1 p-2.5 rounded-2xl text-xs transition-all active:scale-95"
                   style={
                     category === cat.id
-                      ? { background: `${cat.color}30`, border: `1px solid ${cat.color}60`, color: cat.color }
-                      : { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' }
+                      ? { background: `${cat.color}18`, border: `1px solid ${cat.color}40`, color: cat.color }
+                      : { background: '#f9fafb', border: '1px solid #e5e7eb', color: '#9ca3af' }
                   }
                 >
                   <span className="text-xl">{cat.icon}</span>
@@ -138,25 +138,25 @@ export default function EditTransactionModal({ transaction, onClose }: Props) {
 
         {/* Description */}
         <div className="mb-5">
-          <label className="text-white/50 text-xs mb-1 block">Leírás (opcionális)</label>
+          <label className="text-gray-500 text-xs mb-1 block">Leírás (opcionális)</label>
           <input
             type="text"
             placeholder="pl. Tesco bevásárlás"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full rounded-xl px-4 py-3 text-white text-sm focus:outline-none"
+            className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none"
             style={inputStyle}
           />
         </div>
 
         {/* Date */}
         <div className="mb-6">
-          <label className="text-white/50 text-xs mb-1 block">Dátum</label>
+          <label className="text-gray-500 text-xs mb-1 block">Dátum</label>
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full rounded-xl px-4 py-3 text-white text-sm focus:outline-none"
+            className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none"
             style={inputStyle}
           />
         </div>
@@ -166,8 +166,8 @@ export default function EditTransactionModal({ transaction, onClose }: Props) {
           disabled={!amount}
           className="w-full rounded-2xl py-4 font-semibold text-base text-white disabled:opacity-30 active:scale-95 transition-transform mb-3"
           style={{
-            background: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)',
-            boxShadow: '0 8px 24px rgba(124,58,237,0.4)',
+            background: 'linear-gradient(135deg, #22c55e 0%, #1a9460 100%)',
+            boxShadow: '0 6px 20px rgba(26,148,96,0.35)',
           }}
         >
           Mentés
@@ -176,8 +176,8 @@ export default function EditTransactionModal({ transaction, onClose }: Props) {
         <button
           onClick={handleDelete}
           disabled={deleting}
-          className="w-full rounded-2xl py-3.5 font-semibold text-sm text-red-400 disabled:opacity-30 active:scale-95 transition-transform"
-          style={{ background: 'rgba(248,113,113,0.12)', border: '1px solid rgba(248,113,113,0.25)' }}
+          className="w-full rounded-2xl py-3.5 font-semibold text-sm text-red-500 disabled:opacity-30 active:scale-95 transition-transform"
+          style={{ background: '#fef2f2', border: '1px solid #fecaca' }}
         >
           {deleting ? 'Törlés...' : 'Tétel törlése'}
         </button>

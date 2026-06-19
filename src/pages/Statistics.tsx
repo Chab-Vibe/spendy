@@ -6,11 +6,10 @@ import CategoryPieChart from '../components/statistics/CategoryPieChart'
 import TrendBarChart from '../components/statistics/TrendBarChart'
 import { formatHUF } from '../utils/currency'
 
-const glassCard = {
-  background: 'rgba(255,255,255,0.10)',
-  backdropFilter: 'blur(20px)',
-  WebkitBackdropFilter: 'blur(20px)',
-  border: '1px solid rgba(255,255,255,0.18)',
+const card = {
+  background: '#ffffff',
+  border: '1px solid #e5e7eb',
+  boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
 }
 
 export default function Statistics() {
@@ -42,12 +41,12 @@ export default function Statistics() {
   return (
     <div className="min-h-dvh px-4 pt-14">
       <div className="mb-6">
-        <p className="text-white/50 text-xs font-medium uppercase tracking-widest mb-1">Pénzügyek</p>
-        <h1 className="text-white text-2xl font-bold mb-5">Statisztika</h1>
+        <p className="text-gray-400 text-xs font-medium uppercase tracking-widest mb-1">Pénzügyek</p>
+        <h1 className="text-gray-900 text-2xl font-bold mb-5">Statisztika</h1>
 
         <div
           className="flex rounded-2xl p-1 mb-5"
-          style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}
+          style={{ background: '#f3f4f6', border: '1px solid #e5e7eb' }}
         >
           {(['week', 'month'] as const).map((p) => (
             <button
@@ -56,8 +55,8 @@ export default function Statistics() {
               className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all"
               style={
                 period === p
-                  ? { background: 'rgba(255,255,255,0.25)', color: 'white' }
-                  : { color: 'rgba(255,255,255,0.5)' }
+                  ? { background: '#1a9460', color: 'white' }
+                  : { color: '#9ca3af' }
               }
             >
               {p === 'week' ? 'Heti' : 'Havi'}
@@ -67,12 +66,12 @@ export default function Statistics() {
 
         <div className="flex gap-3">
           {[
-            { label: '↑ Bevétel', value: income, color: '#4ade80' },
-            { label: '↓ Kiadás', value: expense, color: '#f87171' },
-            { label: 'Egyenleg', value: income - expense, color: 'white' },
+            { label: '↑ Bevétel', value: income, color: '#16a34a' },
+            { label: '↓ Kiadás', value: expense, color: '#ef4444' },
+            { label: 'Egyenleg', value: income - expense, color: '#111827' },
           ].map(({ label, value, color }) => (
-            <div key={label} className="flex-1 rounded-2xl p-3" style={glassCard}>
-              <p className="text-white/50 text-[11px] mb-1">{label}</p>
+            <div key={label} className="flex-1 rounded-2xl p-3" style={card}>
+              <p className="text-gray-400 text-[11px] mb-1">{label}</p>
               <p className="font-bold text-sm" style={{ color }}>{formatHUF(value)}</p>
             </div>
           ))}
@@ -85,9 +84,9 @@ export default function Statistics() {
           <TrendBarChart transactions={filtered} period={period} />
         </div>
       ) : (
-        <div className="rounded-2xl p-10 text-center" style={glassCard}>
+        <div className="rounded-2xl p-10 text-center" style={card}>
           <div className="text-5xl mb-4">📊</div>
-          <p className="text-white/60 text-sm">Nincs adat a kiválasztott időszakra.</p>
+          <p className="text-gray-500 text-sm">Nincs adat a kiválasztott időszakra.</p>
         </div>
       )}
     </div>

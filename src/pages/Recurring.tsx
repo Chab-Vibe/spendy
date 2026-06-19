@@ -14,11 +14,10 @@ import RecurringItem from '../components/recurring/RecurringItem'
 import AddRecurringModal from '../components/recurring/AddRecurringModal'
 import { formatHUF } from '../utils/currency'
 
-const glassCard = {
-  background: 'rgba(255,255,255,0.10)',
-  backdropFilter: 'blur(20px)',
-  WebkitBackdropFilter: 'blur(20px)',
-  border: '1px solid rgba(255,255,255,0.18)',
+const card = {
+  background: '#ffffff',
+  border: '1px solid #e5e7eb',
+  boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
 }
 
 export default function Recurring() {
@@ -65,13 +64,13 @@ export default function Recurring() {
   return (
     <div className="min-h-dvh px-4 pt-14">
       <div className="mb-6">
-        <p className="text-white/50 text-xs font-medium uppercase tracking-widest mb-1">{monthLabel}</p>
+        <p className="text-gray-400 text-xs font-medium uppercase tracking-widest mb-1">{monthLabel}</p>
         <div className="flex justify-between items-center mb-5">
-          <h1 className="text-white text-2xl font-bold">Rendszeres kiadások</h1>
+          <h1 className="text-gray-900 text-2xl font-bold">Rendszeres kiadások</h1>
           <button
             onClick={() => setShowAdd(true)}
             className="w-9 h-9 rounded-full flex items-center justify-center active:scale-90 transition-transform"
-            style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)' }}
+            style={{ background: '#1a9460', boxShadow: '0 2px 10px rgba(26,148,96,0.4)' }}
           >
             <Plus size={18} className="text-white" />
           </button>
@@ -79,12 +78,12 @@ export default function Recurring() {
 
         <div className="flex gap-3">
           {[
-            { label: 'Összes', value: total, color: 'white' },
-            { label: 'Fizetve', value: paid, color: '#4ade80' },
-            { label: 'Hátralévő', value: remaining, color: '#f87171' },
+            { label: 'Összes', value: total, color: '#111827' },
+            { label: 'Fizetve', value: paid, color: '#16a34a' },
+            { label: 'Hátralévő', value: remaining, color: '#ef4444' },
           ].map(({ label, value, color }) => (
-            <div key={label} className="flex-1 rounded-2xl p-3" style={glassCard}>
-              <p className="text-white/50 text-[11px] mb-1">{label}</p>
+            <div key={label} className="flex-1 rounded-2xl p-3" style={card}>
+              <p className="text-gray-400 text-[11px] mb-1">{label}</p>
               <p className="font-bold text-sm" style={{ color }}>{formatHUF(value)}</p>
             </div>
           ))}
@@ -92,8 +91,8 @@ export default function Recurring() {
       </div>
 
       {active.length > 0 ? (
-        <div className="rounded-2xl overflow-hidden" style={glassCard}>
-          <div className="divide-y divide-white/8">
+        <div className="rounded-2xl overflow-hidden" style={card}>
+          <div className="divide-y divide-gray-100">
             {active.map((t) => (
               <RecurringItem
                 key={t.id}
@@ -106,9 +105,9 @@ export default function Recurring() {
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl p-10 text-center" style={glassCard}>
+        <div className="rounded-2xl p-10 text-center" style={card}>
           <div className="text-5xl mb-4">🔄</div>
-          <p className="text-white/60 text-sm mb-5">
+          <p className="text-gray-500 text-sm mb-5">
             Még nincs rendszeres kiadás.
             <br />
             Add hozzá a havi számláidat!
@@ -116,7 +115,7 @@ export default function Recurring() {
           <button
             onClick={() => setShowAdd(true)}
             className="px-6 py-3 rounded-2xl text-white font-semibold text-sm active:scale-95 transition-transform"
-            style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.25)' }}
+            style={{ background: '#1a9460', boxShadow: '0 2px 10px rgba(26,148,96,0.4)' }}
           >
             Hozzáadás
           </button>

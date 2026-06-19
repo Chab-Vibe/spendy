@@ -7,20 +7,10 @@ import EditTransactionModal from '../components/transactions/EditTransactionModa
 import { CATEGORIES } from '../utils/categories'
 import type { Category } from '../types'
 
-const glassCard = {
-  background: 'rgba(255,255,255,0.10)',
-  backdropFilter: 'blur(20px)',
-  WebkitBackdropFilter: 'blur(20px)',
-  border: '1px solid rgba(255,255,255,0.18)',
-}
-
-const pillActive = {
-  background: 'rgba(255,255,255,0.25)',
-  border: '1px solid rgba(255,255,255,0.3)',
-}
-const pillInactive = {
-  background: 'rgba(255,255,255,0.08)',
-  border: '1px solid rgba(255,255,255,0.12)',
+const card = {
+  background: '#ffffff',
+  border: '1px solid #e5e7eb',
+  boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
 }
 
 export default function Transactions() {
@@ -48,8 +38,8 @@ export default function Transactions() {
   return (
     <div className="min-h-dvh px-4 pt-14">
       <div className="mb-6">
-        <p className="text-white/50 text-xs font-medium uppercase tracking-widest mb-1">Előzmények</p>
-        <h1 className="text-white text-2xl font-bold mb-5">Tranzakciók</h1>
+        <p className="text-gray-400 text-xs font-medium uppercase tracking-widest mb-1">Előzmények</p>
+        <h1 className="text-gray-900 text-2xl font-bold mb-5">Tranzakciók</h1>
 
         <div className="flex gap-2 mb-3">
           {([
@@ -60,8 +50,12 @@ export default function Transactions() {
             <button
               key={key}
               onClick={() => setTypeFilter(key)}
-              className="px-4 py-1.5 rounded-full text-xs font-semibold text-white transition-all"
-              style={typeFilter === key ? pillActive : pillInactive}
+              className="px-4 py-1.5 rounded-full text-xs font-semibold transition-all"
+              style={
+                typeFilter === key
+                  ? { background: '#1a9460', color: 'white' }
+                  : { background: '#f3f4f6', border: '1px solid #e5e7eb', color: '#6b7280' }
+              }
             >
               {label}
             </button>
@@ -71,8 +65,12 @@ export default function Transactions() {
         <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
           <button
             onClick={() => setFilter('all')}
-            className="px-4 py-1.5 rounded-full text-xs font-semibold text-white whitespace-nowrap transition-all flex-shrink-0"
-            style={filter === 'all' ? pillActive : pillInactive}
+            className="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0"
+            style={
+              filter === 'all'
+                ? { background: '#1a9460', color: 'white' }
+                : { background: '#f3f4f6', border: '1px solid #e5e7eb', color: '#6b7280' }
+            }
           >
             Mind
           </button>
@@ -80,8 +78,12 @@ export default function Transactions() {
             <button
               key={cat.id}
               onClick={() => setFilter(cat.id)}
-              className="px-3 py-1.5 rounded-full text-xs font-semibold text-white whitespace-nowrap transition-all flex-shrink-0"
-              style={filter === cat.id ? pillActive : pillInactive}
+              className="px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0"
+              style={
+                filter === cat.id
+                  ? { background: '#1a9460', color: 'white' }
+                  : { background: '#f3f4f6', border: '1px solid #e5e7eb', color: '#6b7280' }
+              }
             >
               {cat.icon} {cat.label}
             </button>
@@ -90,8 +92,8 @@ export default function Transactions() {
       </div>
 
       {filtered.length > 0 ? (
-        <div className="rounded-2xl overflow-hidden" style={glassCard}>
-          <div className="divide-y divide-white/8">
+        <div className="rounded-2xl overflow-hidden" style={card}>
+          <div className="divide-y divide-gray-100">
             {filtered.map((t) => (
               <TransactionCard
                 key={t.id}
@@ -103,9 +105,9 @@ export default function Transactions() {
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl p-10 text-center" style={glassCard}>
+        <div className="rounded-2xl p-10 text-center" style={card}>
           <div className="text-5xl mb-4">📋</div>
-          <p className="text-white/60 text-sm">Nincs tranzakció ebben a szűrőben.</p>
+          <p className="text-gray-500 text-sm">Nincs tranzakció ebben a szűrőben.</p>
         </div>
       )}
 

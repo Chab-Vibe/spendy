@@ -11,9 +11,6 @@ const rightLinks = [
   { to: '/transactions', icon: List, label: 'Tranzakciók' },
 ]
 
-const activeClass = 'text-white'
-const inactiveClass = 'text-white/40'
-
 export default function BottomNav() {
   const setShowAddModal = useStore((s) => s.setShowAddModal)
 
@@ -22,14 +19,11 @@ export default function BottomNav() {
       <div
         className="flex items-end rounded-3xl px-2 py-2"
         style={{
-          background: 'rgba(255,255,255,0.12)',
-          backdropFilter: 'blur(40px)',
-          WebkitBackdropFilter: 'blur(40px)',
-          border: '1px solid rgba(255,255,255,0.18)',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+          background: '#ffffff',
+          border: '1px solid #e5e7eb',
+          boxShadow: '0 -4px 24px rgba(0,0,0,0.08)',
         }}
       >
-        {/* Left links */}
         {leftLinks.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
@@ -37,7 +31,7 @@ export default function BottomNav() {
             end={to === '/'}
             className={({ isActive }) =>
               `flex-1 flex flex-col items-center py-2 gap-0.5 text-[10px] font-medium transition-all ${
-                isActive ? activeClass : inactiveClass
+                isActive ? 'text-[#1a9460]' : 'text-gray-400'
               }`
             }
           >
@@ -52,24 +46,23 @@ export default function BottomNav() {
             onClick={() => setShowAddModal(true)}
             className="w-14 h-14 rounded-full flex items-center justify-center active:scale-90 transition-transform -mt-6"
             style={{
-              background: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 50%, #5b21b6 100%)',
-              boxShadow: '0 4px 24px rgba(124,58,237,0.6), 0 0 0 2px rgba(255,255,255,0.2)',
+              background: 'linear-gradient(135deg, #22c55e 0%, #1a9460 100%)',
+              boxShadow: '0 4px 20px rgba(26,148,96,0.5)',
             }}
             aria-label="Új tétel rögzítése"
           >
             <Plus size={26} className="text-white" strokeWidth={2.5} />
           </button>
-          <span className="text-[10px] text-white/40 mt-1 font-medium">Új tétel</span>
+          <span className="text-[10px] text-gray-400 mt-1 font-medium">Új tétel</span>
         </div>
 
-        {/* Right links */}
         {rightLinks.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
               `flex-1 flex flex-col items-center py-2 gap-0.5 text-[10px] font-medium transition-all ${
-                isActive ? activeClass : inactiveClass
+                isActive ? 'text-[#1a9460]' : 'text-gray-400'
               }`
             }
           >

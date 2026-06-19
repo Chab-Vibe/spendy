@@ -7,11 +7,10 @@ interface Props {
   transactions: Transaction[]
 }
 
-const glassCard = {
-  background: 'rgba(255,255,255,0.10)',
-  backdropFilter: 'blur(20px)',
-  WebkitBackdropFilter: 'blur(20px)',
-  border: '1px solid rgba(255,255,255,0.18)',
+const card = {
+  background: '#ffffff',
+  border: '1px solid #e5e7eb',
+  boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
 }
 
 export default function CategoryPieChart({ transactions }: Props) {
@@ -28,8 +27,8 @@ export default function CategoryPieChart({ transactions }: Props) {
   if (data.length === 0) return null
 
   return (
-    <div className="rounded-2xl p-4" style={glassCard}>
-      <p className="text-white/60 text-xs font-semibold uppercase tracking-wider mb-2">Kategóriák</p>
+    <div className="rounded-2xl p-4" style={card}>
+      <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">Kategóriák</p>
       <ResponsiveContainer width="100%" height={240}>
         <PieChart>
           <Pie
@@ -48,17 +47,18 @@ export default function CategoryPieChart({ transactions }: Props) {
           <Tooltip
             formatter={(v) => [formatHUF(Number(v ?? 0)), '']}
             contentStyle={{
-              background: 'rgba(15,8,45,0.9)',
-              border: '1px solid rgba(255,255,255,0.15)',
+              background: '#ffffff',
+              border: '1px solid #e5e7eb',
               borderRadius: '12px',
-              color: 'white',
+              color: '#111827',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             }}
           />
           <Legend
             iconType="circle"
             iconSize={8}
             formatter={(v) => (
-              <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)' }}>{v}</span>
+              <span style={{ fontSize: '11px', color: '#6b7280' }}>{v}</span>
             )}
           />
         </PieChart>

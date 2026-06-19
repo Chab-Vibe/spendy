@@ -9,15 +9,15 @@ import { CATEGORIES } from '../../utils/categories'
 import CameraCapture from './CameraCapture'
 
 const modalBg = {
-  background: 'rgba(15, 8, 45, 0.92)',
-  backdropFilter: 'blur(50px)',
-  WebkitBackdropFilter: 'blur(50px)',
-  borderTop: '1px solid rgba(255,255,255,0.15)',
+  background: '#ffffff',
+  borderTop: '1px solid #e5e7eb',
+  boxShadow: '0 -8px 40px rgba(0,0,0,0.12)',
 }
 
 const inputStyle = {
-  background: 'rgba(255,255,255,0.08)',
-  border: '1px solid rgba(255,255,255,0.15)',
+  background: '#f9fafb',
+  border: '1px solid #e5e7eb',
+  color: '#111827',
 }
 
 export default function AddTransactionModal() {
@@ -120,7 +120,7 @@ export default function AddTransactionModal() {
   return (
     <div className="fixed inset-0 z-50 flex items-end">
       <div
-        className="absolute inset-0 bg-black/60"
+        className="absolute inset-0 bg-black/40"
         style={{ backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}
         onClick={() => setShowAddModal(false)}
       />
@@ -128,14 +128,14 @@ export default function AddTransactionModal() {
         className="relative w-full max-w-[430px] mx-auto rounded-t-3xl p-6 pb-10 max-h-[90dvh] overflow-y-auto"
         style={modalBg}
       >
-        <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5" />
+        <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
 
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-bold text-white">
+          <h2 className="text-lg font-bold text-gray-900">
             {receiptItems !== null ? 'Blokk elemzés' : 'Új tétel'}
           </h2>
           <button onClick={() => setShowAddModal(false)} className="p-1 -mr-1">
-            <X size={20} className="text-white/50" />
+            <X size={20} className="text-gray-400" />
           </button>
         </div>
 
@@ -143,7 +143,7 @@ export default function AddTransactionModal() {
           /* ── Receipt review mode ── */
           <div>
             {receiptStore && (
-              <p className="text-center text-white/60 text-sm mb-4">{receiptStore}</p>
+              <p className="text-center text-gray-500 text-sm mb-4">{receiptStore}</p>
             )}
 
             <div className="space-y-2 mb-4">
@@ -156,23 +156,23 @@ export default function AddTransactionModal() {
                     <div
                       className="flex items-center gap-2 p-3 rounded-xl"
                       style={{
-                        background: 'rgba(255,255,255,0.08)',
-                        border: '1px solid rgba(255,255,255,0.1)',
+                        background: '#f9fafb',
+                        border: '1px solid #e5e7eb',
                       }}
                     >
                       <button
                         onClick={() => setEditCatIdx(editCatIdx === idx ? null : idx)}
                         className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium active:scale-95 transition-all shrink-0"
                         style={{
-                          background: `${catInfo.color}25`,
-                          border: `1px solid ${catInfo.color}50`,
+                          background: `${catInfo.color}18`,
+                          border: `1px solid ${catInfo.color}40`,
                           color: catInfo.color,
                         }}
                       >
                         <span>{catInfo.icon}</span>
                         <span>{catInfo.label}</span>
                       </button>
-                      <span className="flex-1 text-white/50 text-xs truncate">
+                      <span className="flex-1 text-gray-400 text-xs truncate">
                         {item.description}
                       </span>
                       <input
@@ -184,16 +184,16 @@ export default function AddTransactionModal() {
                           updated[idx] = { ...item, amount: parseInt(e.target.value) || 0 }
                           setReceiptItems(updated)
                         }}
-                        className="w-20 text-right text-white font-semibold bg-transparent focus:outline-none text-sm shrink-0"
-                        style={{ borderBottom: '1px solid rgba(167,139,250,0.4)' }}
+                        className="w-20 text-right text-gray-900 font-semibold bg-transparent focus:outline-none text-sm shrink-0"
+                        style={{ borderBottom: '1px solid #1a9460' }}
                       />
-                      <span className="text-white/40 text-xs shrink-0">Ft</span>
+                      <span className="text-gray-400 text-xs shrink-0">Ft</span>
                       <button
                         onClick={() => {
                           setReceiptItems(receiptItems.filter((_, i) => i !== idx))
                           if (editCatIdx === idx) setEditCatIdx(null)
                         }}
-                        className="p-1 text-white/30 active:text-red-400 transition-colors shrink-0"
+                        className="p-1 text-gray-300 active:text-red-400 transition-colors shrink-0"
                       >
                         <X size={14} />
                       </button>
@@ -202,7 +202,7 @@ export default function AddTransactionModal() {
                     {editCatIdx === idx && (
                       <div
                         className="grid grid-cols-4 gap-1.5 mt-1.5 p-2 rounded-xl"
-                        style={{ background: 'rgba(255,255,255,0.05)' }}
+                        style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}
                       >
                         {CATEGORIES.map((cat) => (
                           <button
@@ -217,14 +217,14 @@ export default function AddTransactionModal() {
                             style={
                               item.category === cat.id
                                 ? {
-                                    background: `${cat.color}30`,
-                                    border: `1px solid ${cat.color}60`,
+                                    background: `${cat.color}18`,
+                                    border: `1px solid ${cat.color}40`,
                                     color: cat.color,
                                   }
                                 : {
-                                    background: 'rgba(255,255,255,0.06)',
-                                    border: '1px solid rgba(255,255,255,0.08)',
-                                    color: 'rgba(255,255,255,0.5)',
+                                    background: '#ffffff',
+                                    border: '1px solid #e5e7eb',
+                                    color: '#9ca3af',
                                   }
                             }
                           >
@@ -244,21 +244,21 @@ export default function AddTransactionModal() {
             <div
               className="flex justify-between items-center px-3 py-2.5 mb-5 rounded-xl"
               style={{
-                border: '1px solid rgba(255,255,255,0.1)',
-                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid #e5e7eb',
+                background: '#f9fafb',
               }}
             >
-              <span className="text-white/60 text-sm">Összesen</span>
-              <span className="text-white font-bold">{totalAmount.toLocaleString('hu-HU')} Ft</span>
+              <span className="text-gray-500 text-sm">Összesen</span>
+              <span className="text-gray-900 font-bold">{totalAmount.toLocaleString('hu-HU')} Ft</span>
             </div>
 
             <div className="mb-5">
-              <label className="text-white/50 text-xs mb-1 block">Dátum</label>
+              <label className="text-gray-500 text-xs mb-1 block">Dátum</label>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full rounded-xl px-4 py-3 text-white text-sm focus:outline-none"
+                className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none"
                 style={inputStyle}
               />
             </div>
@@ -270,10 +270,10 @@ export default function AddTransactionModal() {
                   setReceiptStore('')
                   setEditCatIdx(null)
                 }}
-                className="flex-1 py-3.5 rounded-2xl text-white/60 text-sm font-medium"
+                className="flex-1 py-3.5 rounded-2xl text-gray-500 text-sm font-medium"
                 style={{
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.12)',
+                  background: '#f3f4f6',
+                  border: '1px solid #e5e7eb',
                 }}
               >
                 ← Kézi bevitel
@@ -283,8 +283,8 @@ export default function AddTransactionModal() {
                 disabled={receiptItems.length === 0 || !currentUserId || !householdId}
                 className="flex-1 py-3.5 rounded-2xl text-white font-semibold text-sm disabled:opacity-30 active:scale-95 transition-transform"
                 style={{
-                  background: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)',
-                  boxShadow: '0 8px 24px rgba(124,58,237,0.4)',
+                  background: 'linear-gradient(135deg, #22c55e 0%, #1a9460 100%)',
+                  boxShadow: '0 6px 20px rgba(26,148,96,0.35)',
                 }}
               >
                 Mentés ({receiptItems.length})
@@ -298,8 +298,8 @@ export default function AddTransactionModal() {
             <div
               className="flex rounded-2xl p-1 mb-6"
               style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.12)',
+                background: '#f3f4f6',
+                border: '1px solid #e5e7eb',
               }}
             >
               {(['expense', 'income'] as TransactionType[]).map((t) => (
@@ -310,12 +310,11 @@ export default function AddTransactionModal() {
                   style={
                     type === t
                       ? {
-                          background:
-                            t === 'expense' ? 'rgba(248,113,113,0.3)' : 'rgba(74,222,128,0.3)',
-                          color: t === 'expense' ? '#fca5a5' : '#86efac',
-                          border: `1px solid ${t === 'expense' ? 'rgba(248,113,113,0.4)' : 'rgba(74,222,128,0.4)'}`,
+                          background: t === 'expense' ? '#fef2f2' : '#f0fdf4',
+                          color: t === 'expense' ? '#ef4444' : '#16a34a',
+                          border: `1px solid ${t === 'expense' ? '#fecaca' : '#86efac'}`,
                         }
-                      : { color: 'rgba(255,255,255,0.4)' }
+                      : { color: '#9ca3af' }
                   }
                 >
                   {t === 'expense' ? '↓ Kiadás' : '↑ Bevétel'}
@@ -326,13 +325,13 @@ export default function AddTransactionModal() {
             {/* Amount + camera */}
             <div className="mb-5">
               <div className="flex justify-between items-center mb-2">
-                <label className="text-white/50 text-xs">Összeg (Ft)</label>
+                <label className="text-gray-500 text-xs">Összeg (Ft)</label>
                 <div className="flex gap-1.5">
                   <button
                     onClick={() => setShowCamera(true)}
                     disabled={analyzing}
                     className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium active:scale-95 transition-transform disabled:opacity-50"
-                    style={{ background: 'rgba(167,139,250,0.2)', color: '#c4b5fd', border: '1px solid rgba(167,139,250,0.3)' }}
+                    style={{ background: '#f0fdf4', color: '#1a9460', border: '1px solid #86efac' }}
                   >
                     <Camera size={12} />
                     {analyzing ? '...' : 'Kamera'}
@@ -341,7 +340,7 @@ export default function AddTransactionModal() {
                     onClick={() => galleryRef.current?.click()}
                     disabled={analyzing}
                     className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium active:scale-95 transition-transform disabled:opacity-50"
-                    style={{ background: 'rgba(167,139,250,0.2)', color: '#c4b5fd', border: '1px solid rgba(167,139,250,0.3)' }}
+                    style={{ background: '#f0fdf4', color: '#1a9460', border: '1px solid #86efac' }}
                   >
                     🖼️
                   </button>
@@ -361,18 +360,18 @@ export default function AddTransactionModal() {
                 placeholder="0"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full text-4xl font-bold text-white bg-transparent pb-2 focus:outline-none"
-                style={{ borderBottom: '2px solid rgba(167,139,250,0.6)' }}
+                className="w-full text-4xl font-bold text-gray-900 bg-transparent pb-2 focus:outline-none"
+                style={{ borderBottom: '2px solid #1a9460' }}
               />
               {scanError && (
-                <p className="mt-2 text-xs text-red-400">{scanError}</p>
+                <p className="mt-2 text-xs text-red-500">{scanError}</p>
               )}
             </div>
 
             {/* Category */}
             {type === 'expense' && (
               <div className="mb-5">
-                <label className="text-white/50 text-xs mb-2 block">Kategória</label>
+                <label className="text-gray-500 text-xs mb-2 block">Kategória</label>
                 <div className="grid grid-cols-4 gap-2">
                   {CATEGORIES.map((cat) => (
                     <button
@@ -382,14 +381,14 @@ export default function AddTransactionModal() {
                       style={
                         category === cat.id
                           ? {
-                              background: `${cat.color}30`,
-                              border: `1px solid ${cat.color}60`,
+                              background: `${cat.color}18`,
+                              border: `1px solid ${cat.color}40`,
                               color: cat.color,
                             }
                           : {
-                              background: 'rgba(255,255,255,0.06)',
-                              border: '1px solid rgba(255,255,255,0.08)',
-                              color: 'rgba(255,255,255,0.5)',
+                              background: '#f9fafb',
+                              border: '1px solid #e5e7eb',
+                              color: '#9ca3af',
                             }
                       }
                     >
@@ -403,25 +402,25 @@ export default function AddTransactionModal() {
 
             {/* Description */}
             <div className="mb-5">
-              <label className="text-white/50 text-xs mb-1 block">Leírás (opcionális)</label>
+              <label className="text-gray-500 text-xs mb-1 block">Leírás (opcionális)</label>
               <input
                 type="text"
                 placeholder={type === 'expense' ? 'pl. Tesco bevásárlás' : 'pl. Fizetés'}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full rounded-xl px-4 py-3 text-white text-sm focus:outline-none"
+                className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none"
                 style={inputStyle}
               />
             </div>
 
             {/* Date */}
             <div className="mb-6">
-              <label className="text-white/50 text-xs mb-1 block">Dátum</label>
+              <label className="text-gray-500 text-xs mb-1 block">Dátum</label>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full rounded-xl px-4 py-3 text-white text-sm focus:outline-none"
+                className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none"
                 style={inputStyle}
               />
             </div>
@@ -432,8 +431,8 @@ export default function AddTransactionModal() {
               disabled={!amount || !currentUserId || !householdId}
               className="w-full rounded-2xl py-4 font-semibold text-base text-white disabled:opacity-30 active:scale-95 transition-transform"
               style={{
-                background: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)',
-                boxShadow: '0 8px 24px rgba(124,58,237,0.4)',
+                background: 'linear-gradient(135deg, #22c55e 0%, #1a9460 100%)',
+                boxShadow: '0 6px 20px rgba(26,148,96,0.35)',
               }}
             >
               Mentés

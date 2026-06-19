@@ -7,18 +7,10 @@ import UpcomingRecurring from '../components/dashboard/UpcomingRecurring'
 import TransactionCard from '../components/transactions/TransactionCard'
 import { formatHUF } from '../utils/currency'
 
-const glassCard = {
-  background: 'rgba(255,255,255,0.10)',
-  backdropFilter: 'blur(20px)',
-  WebkitBackdropFilter: 'blur(20px)',
-  border: '1px solid rgba(255,255,255,0.18)',
-}
-
-const glassStrong = {
-  background: 'rgba(255,255,255,0.15)',
-  backdropFilter: 'blur(30px)',
-  WebkitBackdropFilter: 'blur(30px)',
-  border: '1px solid rgba(255,255,255,0.22)',
+const card = {
+  background: '#ffffff',
+  border: '1px solid #e5e7eb',
+  boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
 }
 
 export default function Home() {
@@ -51,30 +43,27 @@ export default function Home() {
     <div className="min-h-dvh px-4 pt-14">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <p className="text-white/50 text-xs font-medium uppercase tracking-widest">
+          <p className="text-gray-400 text-xs font-medium uppercase tracking-widest">
             {now.toLocaleDateString('hu-HU', { month: 'long', year: 'numeric' })}
           </p>
-          <p className="text-white font-semibold text-sm mt-0.5">Áttekintés</p>
+          <p className="text-gray-700 font-semibold text-sm mt-0.5">Áttekintés</p>
         </div>
         <UserSwitcher />
       </div>
 
       <div className="mb-6">
-        <p className="text-white/60 text-sm mb-1">Havi egyenleg</p>
-        <p
-          className="text-5xl font-bold text-white mb-6 tracking-tight"
-          style={{ textShadow: '0 2px 20px rgba(255,255,255,0.2)' }}
-        >
+        <p className="text-gray-500 text-sm mb-1">Havi egyenleg</p>
+        <p className="text-5xl font-bold text-gray-900 mb-6 tracking-tight">
           {formatHUF(balance)}
         </p>
         <div className="flex gap-3">
-          <div className="flex-1 rounded-2xl p-4" style={glassCard}>
-            <p className="text-white/60 text-xs mb-1">↑ Bevétel</p>
-            <p className="text-white font-bold text-lg">{formatHUF(income)}</p>
+          <div className="flex-1 rounded-2xl p-4" style={card}>
+            <p className="text-gray-400 text-xs mb-1">↑ Bevétel</p>
+            <p className="font-bold text-lg" style={{ color: '#16a34a' }}>{formatHUF(income)}</p>
           </div>
-          <div className="flex-1 rounded-2xl p-4" style={glassCard}>
-            <p className="text-white/60 text-xs mb-1">↓ Kiadás</p>
-            <p className="text-white font-bold text-lg">{formatHUF(expense)}</p>
+          <div className="flex-1 rounded-2xl p-4" style={card}>
+            <p className="text-gray-400 text-xs mb-1">↓ Kiadás</p>
+            <p className="font-bold text-lg" style={{ color: '#ef4444' }}>{formatHUF(expense)}</p>
           </div>
         </div>
       </div>
@@ -87,22 +76,22 @@ export default function Home() {
       />
 
       {recent.length > 0 ? (
-        <div className="rounded-2xl overflow-hidden mt-4" style={glassStrong}>
+        <div className="rounded-2xl overflow-hidden mt-4" style={card}>
           <div className="px-4 pt-4 pb-2">
-            <p className="text-white/70 text-xs font-semibold uppercase tracking-wider">
+            <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider">
               Legutóbbi tranzakciók
             </p>
           </div>
-          <div className="divide-y divide-white/8">
+          <div className="divide-y divide-gray-100">
             {recent.map((t) => (
               <TransactionCard key={t.id} transaction={t} />
             ))}
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl p-10 text-center mt-4" style={glassCard}>
+        <div className="rounded-2xl p-10 text-center mt-4" style={card}>
           <div className="text-5xl mb-4">💰</div>
-          <p className="text-white/60 text-sm leading-relaxed">
+          <p className="text-gray-500 text-sm leading-relaxed">
             Még nincs tranzakció.
             <br />
             Nyomj a + gombra az első rögzítéséhez!

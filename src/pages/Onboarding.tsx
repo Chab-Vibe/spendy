@@ -4,11 +4,10 @@ import type { User } from '../types'
 
 const COLORS = ['#a78bfa', '#34d399', '#f87171', '#fbbf24', '#60a5fa', '#f472b6', '#fb923c', '#c084fc']
 
-const glass = {
-  background: 'rgba(255,255,255,0.10)',
-  backdropFilter: 'blur(30px)',
-  WebkitBackdropFilter: 'blur(30px)',
-  border: '1px solid rgba(255,255,255,0.18)',
+const cardStyle = {
+  background: '#ffffff',
+  border: '1px solid #e5e7eb',
+  boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
 }
 
 function UserSetup({
@@ -22,7 +21,7 @@ function UserSetup({
 }) {
   const initial = value.name[0]?.toUpperCase() || String(index + 1)
   return (
-    <div className="rounded-3xl p-5" style={glass}>
+    <div className="rounded-3xl p-5" style={cardStyle}>
       <div className="flex items-center gap-3 mb-4">
         <div
           className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg"
@@ -30,9 +29,9 @@ function UserSetup({
         >
           {initial}
         </div>
-        <h3 className="font-semibold text-white">{index + 1}. felhasználó</h3>
+        <h3 className="font-semibold text-gray-800">{index + 1}. felhasználó</h3>
         {index === 1 && (
-          <span className="ml-auto text-white/40 text-xs">opcionális</span>
+          <span className="ml-auto text-gray-400 text-xs">opcionális</span>
         )}
       </div>
       <input
@@ -40,11 +39,8 @@ function UserSetup({
         placeholder={index === 0 ? 'Pl. Bence' : 'Pl. Réka'}
         value={value.name}
         onChange={(e) => onChange({ ...value, name: e.target.value })}
-        className="w-full rounded-xl px-4 py-3 text-white text-sm mb-4 focus:outline-none"
-        style={{
-          background: 'rgba(255,255,255,0.12)',
-          border: '1px solid rgba(255,255,255,0.2)',
-        }}
+        className="w-full rounded-xl px-4 py-3 text-sm mb-4 focus:outline-none"
+        style={{ background: '#f9fafb', border: '1px solid #e5e7eb', color: '#111827' }}
         maxLength={20}
       />
       <div className="flex gap-2 flex-wrap">
@@ -86,9 +82,9 @@ export default function Onboarding() {
   return (
     <div className="min-h-dvh flex flex-col px-5 py-14">
       <div className="mb-8">
-        <div className="text-5xl mb-5" style={{ filter: 'drop-shadow(0 4px 16px rgba(167,139,250,0.5))' }}>💸</div>
-        <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">Spendy</h1>
-        <p className="text-white/50 text-sm leading-relaxed">
+        <div className="text-5xl mb-5">💸</div>
+        <h1 className="text-4xl font-bold text-gray-900 mb-2 tracking-tight">Spendy</h1>
+        <p className="text-gray-500 text-sm leading-relaxed">
           Kiadás-bevétel követő. Először állítsuk be, ki fogja használni!
         </p>
       </div>
@@ -103,8 +99,8 @@ export default function Onboarding() {
         disabled={!u1.name.trim()}
         className="mt-8 w-full rounded-2xl py-4 font-semibold text-base text-white disabled:opacity-30 active:scale-95 transition-transform"
         style={{
-          background: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 50%, #5b21b6 100%)',
-          boxShadow: '0 8px 32px rgba(124,58,237,0.5)',
+          background: 'linear-gradient(135deg, #22c55e 0%, #1a9460 100%)',
+          boxShadow: '0 8px 32px rgba(26,148,96,0.4)',
         }}
       >
         Kezdjük el!
