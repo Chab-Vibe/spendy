@@ -28,6 +28,7 @@ export default function AddTransactionModal() {
   const [description, setDescription] = useState('')
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
   const [analyzing, setAnalyzing] = useState(false)
+  const [scanError, setScanError] = useState('')
   const [fileInputKey, setFileInputKey] = useState(0)
   const [receiptItems, setReceiptItems] = useState<ReceiptLineItem[] | null>(null)
   const [receiptStore, setReceiptStore] = useState('')
@@ -36,6 +37,7 @@ export default function AddTransactionModal() {
 
   async function handleImageCapture(file: File) {
     setAnalyzing(true)
+    setScanError('')
     setFileInputKey((k) => k + 1)
     try {
       const base64 = await fileToBase64(file)
@@ -53,11 +55,7 @@ export default function AddTransactionModal() {
       setReceiptStore(result.storeName ?? '')
     } catch (e: unknown) {
       const err = e as Error
-      if (err.message === 'NO_API_KEY') {
-        alert('Az AI elemzéshez add meg a VITE_ANTHROPIC_API_KEY kulcsot az .env.local fájlban.')
-      } else {
-        alert('Nem sikerült elemezni a blokkot. Töltsd ki kézzel.')
-      }
+      setScanError(err.message === 'NO_API_KEY' ? 'Hiányzó API kulcs (VITE_ANTHROPIC_API_KEY)' : `Hiba: ${err.message}`)
     } finally {
       setAnalyzing(false)
     }
@@ -334,7 +332,6 @@ export default function AddTransactionModal() {
                   ref={fileRef}
                   type="file"
                   accept="image/*"
-                  capture="environment"
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0]
@@ -351,6 +348,9 @@ export default function AddTransactionModal() {
                 className="w-full text-4xl font-bold text-white bg-transparent pb-2 focus:outline-none"
                 style={{ borderBottom: '2px solid rgba(167,139,250,0.6)' }}
               />
+              {scanError && (
+                <p className="mt-2 text-xs text-red-400">{scanError}</p>
+              )}
             </div>
 
             {/* Category */}
