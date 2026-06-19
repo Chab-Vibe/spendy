@@ -2,6 +2,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recha
 import type { Transaction } from '../../types'
 import { CATEGORIES } from '../../utils/categories'
 import { formatHUF } from '../../utils/currency'
+import { useStore } from '../../store/useStore'
 
 interface Props {
   transactions: Transaction[]
@@ -14,7 +15,9 @@ const card = {
 }
 
 export default function CategoryPieChart({ transactions }: Props) {
-  const data = CATEGORIES.map((cat) => ({
+  const customCategories = useStore((s) => s.customCategories)
+  const allCats = [...CATEGORIES, ...customCategories]
+  const data = allCats.map((cat) => ({
     name: cat.label,
     value: transactions
       .filter((t) => t.category === cat.id)

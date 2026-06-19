@@ -1,14 +1,20 @@
 export type TransactionType = 'income' | 'expense'
 
-export type Category =
-  | 'élelmiszer'
-  | 'rezsi'
-  | 'lakás'
-  | 'közlekedés'
-  | 'egészség'
-  | 'szórakozás'
-  | 'ruha'
-  | 'egyéb'
+export type Category = string
+
+export interface CustomCategory {
+  id: string
+  label: string
+  icon: string
+  color: string
+}
+
+export interface HouseholdInfo {
+  id: string
+  name: string
+  invite_code: string
+  member_count: number
+}
 
 export interface User {
   id: string

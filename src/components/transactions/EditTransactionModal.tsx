@@ -5,6 +5,7 @@ import { updateTransaction, deleteTransaction } from '../../api/storage'
 import type { Category, Transaction, TransactionType } from '../../types'
 import { CATEGORIES } from '../../utils/categories'
 
+
 const modalBg = {
   background: '#ffffff',
   borderTop: '1px solid #e5e7eb',
@@ -23,7 +24,8 @@ interface Props {
 }
 
 export default function EditTransactionModal({ transaction, onClose }: Props) {
-  const { bumpData } = useStore()
+  const { bumpData, customCategories } = useStore()
+  const allCats = [...CATEGORIES, ...customCategories]
 
   const [type, setType] = useState<TransactionType>(transaction.type)
   const [amount, setAmount] = useState(String(transaction.amount))
@@ -117,7 +119,7 @@ export default function EditTransactionModal({ transaction, onClose }: Props) {
           <div className="mb-5">
             <label className="text-gray-500 text-xs mb-2 block">Kategória</label>
             <div className="grid grid-cols-4 gap-2">
-              {CATEGORIES.map((cat) => (
+              {allCats.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setCategory(cat.id)}

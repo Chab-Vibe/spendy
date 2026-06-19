@@ -152,6 +152,49 @@ export async function getHouseholdInviteCode(householdId: string): Promise<strin
   return (data as { invite_code: string } | null)?.invite_code ?? null
 }
 
+export async function getMyHouseholds() {
+  const { data, error } = await supabase.rpc('get_my_households')
+  if (error) throw error
+  return (data ?? []) as { id: string; name: string; invite_code: string; member_count: number }[]
+}
+
+export async function switchHousehold(householdId: string): Promise<void> {
+  const { error } = await supabase.rpc('switch_household', { p_household_id: householdId })
+  if (error) throw error
+}
+
+// ── Custom categories ─────────────────────────────────────────
+
+export async function getCustomCategories(householdId: string) {
+  const { data, error } = await supabase
+    .from('household_categories')
+    .select('id, label, icon, color')
+    .eq('household_id', householdId)
+    .order('created_at', { ascending: true })
+  if (error) throw error
+  return (data ?? []) as { id: string; label: string; icon: string; color: string }[]
+}
+
+export async function addCustomCategory(
+  householdId: string,
+  label: string,
+  icon: string,
+  color: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from('household_categories')
+    .insert({ household_id: householdId, label, icon, color })
+  if (error) throw error
+}
+
+export async function deleteCustomCategory(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('household_categories')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
+}
+
 // ── Row mappers ───────────────────────────────────────────────
 
 function rowToTransaction(r: Record<string, unknown>): Transaction {

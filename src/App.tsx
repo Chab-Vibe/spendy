@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 import { useStore } from './store/useStore'
-import { getHouseholdProfiles } from './api/storage'
+import { getHouseholdProfiles, getMyHouseholds, getCustomCategories } from './api/storage'
 import Login from './pages/Login'
 import Setup from './pages/Setup'
 import Home from './pages/Home'
@@ -17,7 +17,11 @@ import AddTransactionModal from './components/transactions/AddTransactionModal'
 export default function App() {
   const [session, setSession] = useState<Session | null | undefined>(undefined)
   const [profileLoaded, setProfileLoaded] = useState(false)
-  const { setUsers, setCurrentUser, setHouseholdId, showAddModal, householdId } = useStore()
+  const {
+    setUsers, setCurrentUser, setHouseholdId,
+    setAllHouseholds, setCustomCategories,
+    showAddModal, householdId,
+  } = useStore()
 
   const loadProfile = useCallback(async (s: Session) => {
     setProfileLoaded(false)
@@ -31,13 +35,21 @@ export default function App() {
       const hid = data.household_id as string
       setHouseholdId(hid)
       setCurrentUser(data.id as string)
-      const members = await getHouseholdProfiles(hid)
+      const [members, households, customCats] = await Promise.all([
+        getHouseholdProfiles(hid),
+        getMyHouseholds().catch(() => []),
+        getCustomCategories(hid).catch(() => []),
+      ])
       setUsers(members)
+      setAllHouseholds(households)
+      setCustomCategories(customCats)
     } else {
       setHouseholdId(null)
+      setAllHouseholds([])
+      setCustomCategories([])
     }
     setProfileLoaded(true)
-  }, [setHouseholdId, setCurrentUser, setUsers])
+  }, [setHouseholdId, setCurrentUser, setUsers, setAllHouseholds, setCustomCategories])
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -53,12 +65,13 @@ export default function App() {
         setProfileLoaded(true)
         setHouseholdId(null)
         setUsers([])
+        setAllHouseholds([])
+        setCustomCategories([])
       }
     })
     return () => subscription.unsubscribe()
   }, [loadProfile])
 
-  // Loading
   if (session === undefined || !profileLoaded) {
     return (
       <div className="min-h-dvh flex items-center justify-center">
@@ -67,7 +80,6 @@ export default function App() {
     )
   }
 
-  // Not authenticated
   if (!session) {
     return (
       <BrowserRouter>
@@ -78,7 +90,6 @@ export default function App() {
     )
   }
 
-  // Authenticated but no household → setup
   if (!householdId) {
     return (
       <BrowserRouter>
@@ -89,7 +100,6 @@ export default function App() {
     )
   }
 
-  // Fully set up → main app
   return (
     <BrowserRouter>
       <div className="relative min-h-dvh pb-28">

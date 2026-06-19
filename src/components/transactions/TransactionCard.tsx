@@ -3,6 +3,7 @@ import { Pencil, Trash2 } from 'lucide-react'
 import type { Transaction } from '../../types'
 import { formatHUF } from '../../utils/currency'
 import { getCategoryInfo } from '../../utils/categories'
+import { useStore } from '../../store/useStore'
 
 interface Props {
   transaction: Transaction
@@ -12,8 +13,9 @@ interface Props {
 
 export default function TransactionCard({ transaction: t, onEdit, onDelete }: Props) {
   const [expanded, setExpanded] = useState(false)
+  const customCategories = useStore((s) => s.customCategories)
   const isIncome = t.type === 'income'
-  const cat = getCategoryInfo(t.category)
+  const cat = getCategoryInfo(t.category, customCategories)
   const date = new Date(t.date).toLocaleDateString('hu-HU', { month: 'short', day: 'numeric' })
 
   return (

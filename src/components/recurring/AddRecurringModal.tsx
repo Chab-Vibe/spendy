@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { X } from 'lucide-react'
 import type { RecurringTemplate, Category } from '../../types'
 import { CATEGORIES } from '../../utils/categories'
+import { useStore } from '../../store/useStore'
 
 const modalBg = {
   background: '#ffffff',
@@ -22,6 +23,8 @@ interface Props {
 }
 
 export default function AddRecurringModal({ onClose, onAdd, userId }: Props) {
+  const customCategories = useStore((s) => s.customCategories)
+  const allCats = [...CATEGORIES, ...customCategories]
   const [name, setName] = useState('')
   const [amount, setAmount] = useState('')
   const [category, setCategory] = useState<Category>('rezsi')
@@ -109,7 +112,7 @@ export default function AddRecurringModal({ onClose, onAdd, userId }: Props) {
           <div>
             <label className="text-gray-500 text-xs mb-2 block">Kategória</label>
             <div className="grid grid-cols-4 gap-2">
-              {CATEGORIES.map((cat) => (
+              {allCats.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setCategory(cat.id)}
