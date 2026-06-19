@@ -39,7 +39,7 @@ type ConfirmAction =
 
 export default function Settings() {
   const navigate = useNavigate()
-  const { users, currentUserId, householdId, setUsers, bumpData, customCategories, setCustomCategories } = useStore()
+  const { users, currentUserId, householdId, allHouseholds, setUsers, bumpData, customCategories, setCustomCategories } = useStore()
   const me = users.find((u) => u.id === currentUserId) ?? null
 
   // Profil
@@ -49,9 +49,15 @@ export default function Settings() {
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
 
-  // Meghívó
+  // Meghívó — háztartásonként
   const [inviteCode, setInviteCode] = useState<string | null>(null)
+  const [selectedInviteHId, setSelectedInviteHId] = useState<string | null>(householdId)
   const [copied, setCopied] = useState(false)
+
+  // A megjelenített invite code: ha allHouseholds betöltött, abból; egyébként fallback
+  const inviteCodeToShow = allHouseholds.length > 0
+    ? (allHouseholds.find((h) => h.id === selectedInviteHId)?.invite_code ?? null)
+    : inviteCode
 
   // Jelszó
   const [newPassword, setNewPassword] = useState('')
@@ -158,16 +164,17 @@ export default function Settings() {
   }
 
   async function handleCopy() {
-    if (!inviteCode) return
-    await navigator.clipboard.writeText(inviteCode)
+    if (!inviteCodeToShow) return
+    await navigator.clipboard.writeText(inviteCodeToShow)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
   async function handleShare() {
-    if (!inviteCode) return
+    if (!inviteCodeToShow) return
+    const hName = allHouseholds.find((h) => h.id === selectedInviteHId)?.name ?? 'Spendy'
     if (navigator.share) {
-      await navigator.share({ title: 'Spendy meghívó', text: `Csatlakozz a Spendy háztartásomhoz! Kód: ${inviteCode}` }).catch(() => {})
+      await navigator.share({ title: 'Spendy meghívó', text: `Csatlakozz a „${hName}" háztartáshoz a Spendy-ben! Kód: ${inviteCodeToShow}` }).catch(() => {})
     } else {
       handleCopy()
     }
@@ -260,13 +267,33 @@ export default function Settings() {
       <section className="mb-6">
         <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3 px-1">Társ meghívása</p>
         <div className="rounded-2xl p-5" style={card}>
+          {/* Háztartásválasztó — csak ha több van */}
+          {allHouseholds.length > 1 && (
+            <div className="mb-4">
+              <label className="text-gray-500 text-xs mb-2 block">Melyik háztartásba hívod?</label>
+              <div className="flex gap-2 flex-wrap">
+                {allHouseholds.map((h) => (
+                  <button
+                    key={h.id}
+                    onClick={() => { setSelectedInviteHId(h.id); setCopied(false) }}
+                    className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95"
+                    style={selectedInviteHId === h.id
+                      ? { background: '#1a9460', color: '#fff' }
+                      : { background: '#f0fdf4', color: '#1a9460', border: '1px solid #bbf7d0' }}
+                  >
+                    {h.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <p className="text-gray-500 text-xs leading-relaxed mb-4">
             Küldd el ezt a kódot a társadnak — ő a <span className="font-semibold text-gray-700">Csatlakozás</span> opcióval tud belépni.
           </p>
-          {inviteCode ? (
+          {inviteCodeToShow ? (
             <>
               <div className="flex items-center justify-center rounded-xl py-4 mb-4" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
-                <span className="font-mono text-2xl font-bold text-gray-900 tracking-[0.25em]">{inviteCode}</span>
+                <span className="font-mono text-2xl font-bold text-gray-900 tracking-[0.25em]">{inviteCodeToShow}</span>
               </div>
               <div className="flex gap-2">
                 <button onClick={handleCopy} className="flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold active:scale-95 transition-transform" style={{ background: '#f0fdf4', color: '#1a9460', border: '1px solid #bbf7d0' }}>
