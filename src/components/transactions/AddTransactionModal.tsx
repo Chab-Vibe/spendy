@@ -393,7 +393,7 @@ export default function AddTransactionModal() {
   )
 }
 
-async function compressImage(file: File, maxPx = 1280, quality = 0.85): Promise<string> {
+async function compressImage(file: File, maxPx = 1568, quality = 0.9): Promise<string> {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')!
 

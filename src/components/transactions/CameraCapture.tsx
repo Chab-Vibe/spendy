@@ -10,11 +10,21 @@ export default function CameraCapture({ onCapture, onClose }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const [ready, setReady] = useState(false)
+  const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
+    // Magas felbontás kérése — blokk apró betűi miatt fontos.
+    // Az `ideal` nem dob hibát, ha a kamera ennél kevesebbet tud.
     navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+      .getUserMedia({
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 3840 },
+          height: { ideal: 2160 },
+        },
+        audio: false,
+      })
       .then((stream) => {
         streamRef.current = stream
         if (videoRef.current) {
@@ -29,11 +39,33 @@ export default function CameraCapture({ onCapture, onClose }: Props) {
     }
   }, [])
 
-  function capture() {
+  function stopStream() {
+    streamRef.current?.getTracks().forEach((t) => t.stop())
+  }
+
+  async function capture() {
+    if (busy) return
+    setBusy(true)
+    const track = streamRef.current?.getVideoTracks()[0]
+
+    // 1) Teljes fotó-felbontás ImageCapture-rel (Chrome/Edge Android) — sokkal
+    //    élesebb, mint a videó-képkocka.
+    if (track && 'ImageCapture' in window) {
+      try {
+        const blob = await new ImageCapture(track).takePhoto()
+        stopStream()
+        onCapture(new File([blob], 'photo.jpg', { type: blob.type || 'image/jpeg' }))
+        return
+      } catch {
+        // nem támogatott / sikertelen → videó-képkocka fallback
+      }
+    }
+
+    // 2) Fallback: aktuális videó-képkocka canvas-ra
     const video = videoRef.current
-    if (!video) return
-    if (!video.videoWidth || !video.videoHeight) {
+    if (!video || !video.videoWidth || !video.videoHeight) {
       setError('A kamera képe még nem töltött be. Várj egy pillanatot, majd próbáld újra.')
+      setBusy(false)
       return
     }
     const canvas = document.createElement('canvas')
@@ -44,13 +76,14 @@ export default function CameraCapture({ onCapture, onClose }: Props) {
       (blob) => {
         if (!blob) {
           setError('Nem sikerült elkészíteni a fotót. Próbáld újra.')
+          setBusy(false)
           return
         }
-        streamRef.current?.getTracks().forEach((t) => t.stop())
+        stopStream()
         onCapture(new File([blob], 'photo.jpg', { type: 'image/jpeg' }))
       },
       'image/jpeg',
-      0.9,
+      0.92,
     )
   }
 
@@ -78,7 +111,7 @@ export default function CameraCapture({ onCapture, onClose }: Props) {
             </button>
             <button
               onClick={capture}
-              disabled={!ready}
+              disabled={!ready || busy}
               className="w-18 h-18 rounded-full border-4 border-white active:scale-95 transition-transform disabled:opacity-40"
               style={{ width: 72, height: 72, background: 'rgba(255,255,255,0.9)' }}
             />
