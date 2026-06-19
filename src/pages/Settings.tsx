@@ -36,6 +36,12 @@ export default function Settings() {
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
 
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordSaving, setPasswordSaving] = useState(false)
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordSaved, setPasswordSaved] = useState(false)
+
   useEffect(() => {
     if (householdId) getHouseholdInviteCode(householdId).then(setInviteCode)
   }, [householdId])
@@ -55,6 +61,32 @@ export default function Settings() {
       setError((err as Error).message ?? 'Hiba történt.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function handlePasswordChange() {
+    if (!newPassword || newPassword !== confirmPassword) {
+      setPasswordError('A jelszavak nem egyeznek.')
+      return
+    }
+    if (newPassword.length < 6) {
+      setPasswordError('A jelszó legalább 6 karakter legyen.')
+      return
+    }
+    setPasswordSaving(true)
+    setPasswordError('')
+    setPasswordSaved(false)
+    try {
+      const { error: err } = await supabase.auth.updateUser({ password: newPassword })
+      if (err) throw err
+      setNewPassword('')
+      setConfirmPassword('')
+      setPasswordSaved(true)
+      setTimeout(() => setPasswordSaved(false), 2000)
+    } catch (err: unknown) {
+      setPasswordError((err as Error).message ?? 'Hiba történt.')
+    } finally {
+      setPasswordSaving(false)
     }
   }
 
@@ -218,6 +250,51 @@ export default function Settings() {
           ) : (
             <p className="text-gray-400 text-sm text-center py-2">Betöltés...</p>
           )}
+        </div>
+      </section>
+
+      {/* Jelszó módosítása */}
+      <section className="mb-6">
+        <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3 px-1">
+          Jelszó módosítása
+        </p>
+        <div className="rounded-2xl p-5 space-y-4" style={card}>
+          <div>
+            <label className="text-gray-500 text-xs mb-1.5 block">Új jelszó</label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Legalább 6 karakter"
+              className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none"
+              style={inputStyle}
+            />
+          </div>
+          <div>
+            <label className="text-gray-500 text-xs mb-1.5 block">Jelszó megerősítése</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Írd be még egyszer"
+              className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none"
+              style={inputStyle}
+            />
+          </div>
+          {passwordError && <p className="text-red-500 text-xs">{passwordError}</p>}
+          <button
+            onClick={handlePasswordChange}
+            disabled={passwordSaving || !newPassword || !confirmPassword}
+            className="w-full rounded-xl py-3 text-sm font-semibold text-white disabled:opacity-40 active:scale-95 transition-all"
+            style={{
+              background: passwordSaved
+                ? '#16a34a'
+                : 'linear-gradient(135deg, #22c55e 0%, #1a9460 100%)',
+              boxShadow: '0 4px 16px rgba(26,148,96,0.25)',
+            }}
+          >
+            {passwordSaving ? '...' : passwordSaved ? '✓ Jelszó mentve' : 'Jelszó módosítása'}
+          </button>
         </div>
       </section>
 
