@@ -6,7 +6,6 @@ import { analyzeReceipt } from '../../api/claude'
 import type { ReceiptLineItem } from '../../api/claude'
 import type { Category, TransactionType } from '../../types'
 import { CATEGORIES } from '../../utils/categories'
-import CameraCapture from './CameraCapture'
 
 const CAT_COLORS = ['#22C55E', '#3B82F6', '#F97316', '#EC4899', '#8B5CF6', '#F59E0B', '#06B6D4', '#EF4444']
 
@@ -33,7 +32,6 @@ export default function AddTransactionModal() {
   const [analyzing, setAnalyzing] = useState(false)
   const [scanError, setScanError] = useState('')
   const [fileInputKey, setFileInputKey] = useState(0)
-  const [showCamera, setShowCamera] = useState(false)
   const [receiptItems, setReceiptItems] = useState<ReceiptLineItem[] | null>(null)
   const [receiptStore, setReceiptStore] = useState('')
   const [editCatIdx, setEditCatIdx] = useState<number | null>(null)
@@ -45,6 +43,7 @@ export default function AddTransactionModal() {
   const [newCatColor, setNewCatColor] = useState(CAT_COLORS[0])
   const [addingCat, setAddingCat] = useState(false)
 
+  const cameraRef = useRef<HTMLInputElement>(null)
   const galleryRef = useRef<HTMLInputElement>(null)
   const allCats = [...CATEGORIES, ...customCategories]
 
@@ -130,7 +129,6 @@ export default function AddTransactionModal() {
   const totalAmount = receiptItems?.reduce((s, i) => s + (i.amount || 0), 0) ?? 0
 
   return (
-  <>
     <div className="fixed inset-0 z-50 flex items-end">
       <div
         className="absolute inset-0 bg-black/40"
@@ -253,7 +251,7 @@ export default function AddTransactionModal() {
               <div className="flex justify-between items-center mb-2">
                 <label className="text-gray-500 text-xs">Összeg (Ft)</label>
                 <div className="flex gap-1.5">
-                  <button onClick={() => setShowCamera(true)} disabled={analyzing} className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium active:scale-95 transition-transform disabled:opacity-50" style={{ background: '#f0fdf4', color: '#1a9460', border: '1px solid #86efac' }}>
+                  <button onClick={() => cameraRef.current?.click()} disabled={analyzing} className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium active:scale-95 transition-transform disabled:opacity-50" style={{ background: '#f0fdf4', color: '#1a9460', border: '1px solid #86efac' }}>
                     <Camera size={12} />
                     {analyzing ? 'Elemzés...' : 'Blokk fotó'}
                   </button>
@@ -261,6 +259,7 @@ export default function AddTransactionModal() {
                     <Image size={12} />
                   </button>
                 </div>
+                <input key={`cam-${fileInputKey}`} ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageCapture(f) }} />
                 <input key={`gal-${fileInputKey}`} ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageCapture(f) }} />
               </div>
               <input type="number" inputMode="numeric" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full text-4xl font-bold text-gray-900 bg-transparent pb-2 focus:outline-none" style={{ borderBottom: '2px solid #1a9460' }} />
@@ -382,14 +381,6 @@ export default function AddTransactionModal() {
         )}
       </div>
     </div>
-
-    {showCamera && (
-      <CameraCapture
-        onCapture={(file) => { setShowCamera(false); handleImageCapture(file) }}
-        onClose={() => setShowCamera(false)}
-      />
-    )}
-  </>
   )
 }
 
