@@ -6,6 +6,7 @@ import { analyzeReceipt } from '../../api/claude'
 import type { ReceiptLineItem } from '../../api/claude'
 import type { Category, TransactionType } from '../../types'
 import { CATEGORIES } from '../../utils/categories'
+import CameraCapture from './CameraCapture'
 
 const modalBg = {
   background: 'rgba(15, 8, 45, 0.92)',
@@ -33,7 +34,7 @@ export default function AddTransactionModal() {
   const [receiptItems, setReceiptItems] = useState<ReceiptLineItem[] | null>(null)
   const [receiptStore, setReceiptStore] = useState('')
   const [editCatIdx, setEditCatIdx] = useState<number | null>(null)
-  const cameraRef = useRef<HTMLInputElement>(null)
+  const [showCamera, setShowCamera] = useState(false)
   const galleryRef = useRef<HTMLInputElement>(null)
 
   async function handleImageCapture(file: File) {
@@ -106,6 +107,15 @@ export default function AddTransactionModal() {
   }
 
   const totalAmount = receiptItems?.reduce((s, i) => s + (i.amount || 0), 0) ?? 0
+
+  if (showCamera) {
+    return (
+      <CameraCapture
+        onCapture={(file) => { setShowCamera(false); handleImageCapture(file) }}
+        onClose={() => setShowCamera(false)}
+      />
+    )
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-end">
@@ -319,7 +329,7 @@ export default function AddTransactionModal() {
                 <label className="text-white/50 text-xs">Összeg (Ft)</label>
                 <div className="flex gap-1.5">
                   <button
-                    onClick={() => cameraRef.current?.click()}
+                    onClick={() => setShowCamera(true)}
                     disabled={analyzing}
                     className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium active:scale-95 transition-transform disabled:opacity-50"
                     style={{ background: 'rgba(167,139,250,0.2)', color: '#c4b5fd', border: '1px solid rgba(167,139,250,0.3)' }}
@@ -337,16 +347,7 @@ export default function AddTransactionModal() {
                   </button>
                 </div>
                 <input
-                  key={`cam-${fileInputKey}`}
-                  ref={cameraRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  className="hidden"
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageCapture(f) }}
-                />
-                <input
-                  key={`gal-${fileInputKey}`}
+                  key={fileInputKey}
                   ref={galleryRef}
                   type="file"
                   accept="image/*"
