@@ -6,6 +6,7 @@ import { analyzeReceipt } from '../../api/claude'
 import type { ReceiptLineItem } from '../../api/claude'
 import type { Category, TransactionType } from '../../types'
 import { CATEGORIES } from '../../utils/categories'
+import CameraCapture from './CameraCapture'
 
 const CAT_COLORS = ['#22C55E', '#3B82F6', '#F97316', '#EC4899', '#8B5CF6', '#F59E0B', '#06B6D4', '#EF4444']
 
@@ -32,6 +33,7 @@ export default function AddTransactionModal() {
   const [analyzing, setAnalyzing] = useState(false)
   const [scanError, setScanError] = useState('')
   const [fileInputKey, setFileInputKey] = useState(0)
+  const [showCamera, setShowCamera] = useState(false)
   const [receiptItems, setReceiptItems] = useState<ReceiptLineItem[] | null>(null)
   const [receiptStore, setReceiptStore] = useState('')
   const [editCatIdx, setEditCatIdx] = useState<number | null>(null)
@@ -43,7 +45,6 @@ export default function AddTransactionModal() {
   const [newCatColor, setNewCatColor] = useState(CAT_COLORS[0])
   const [addingCat, setAddingCat] = useState(false)
 
-  const cameraRef = useRef<HTMLInputElement>(null)
   const galleryRef = useRef<HTMLInputElement>(null)
   const allCats = [...CATEGORIES, ...customCategories]
 
@@ -51,10 +52,13 @@ export default function AddTransactionModal() {
     setAnalyzing(true)
     setScanError('')
     try {
-      const base64 = await fileToBase64(file)
-      const supported = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
-      const mimeType = supported.includes(file.type) ? file.type : 'image/jpeg'
-      const result = await analyzeReceipt(base64, mimeType)
+      const base64 = await compressImage(file)
+      const result = await Promise.race([
+        analyzeReceipt(base64, 'image/jpeg'),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Időtúllépés – próbáld újra')), 30000)
+        ),
+      ])
       const validIds = allCats.map((c) => c.id)
       const items = (result.lineItems ?? []).map((item) => ({
         ...item,
@@ -68,7 +72,12 @@ export default function AddTransactionModal() {
       setReceiptStore(result.storeName ?? '')
     } catch (e: unknown) {
       const err = e as Error
-      setScanError(err.message === 'NO_API_KEY' ? 'Hiányzó API kulcs (VITE_ANTHROPIC_API_KEY)' : `Hiba: ${err.message}`)
+      const msg =
+        err.message === 'NO_API_KEY' ? 'Hiányzó API kulcs' :
+        err.message === 'API_ERROR'  ? 'API hiba – ellenőrizd a hálózatot' :
+        err.message === 'PARSE_ERROR' ? 'Nem sikerült elemezni a blokkot' :
+        `Hiba: ${err.message}`
+      setScanError(msg)
     } finally {
       setAnalyzing(false)
       setFileInputKey((k) => k + 1)
@@ -121,6 +130,7 @@ export default function AddTransactionModal() {
   const totalAmount = receiptItems?.reduce((s, i) => s + (i.amount || 0), 0) ?? 0
 
   return (
+  <>
     <div className="fixed inset-0 z-50 flex items-end">
       <div
         className="absolute inset-0 bg-black/40"
@@ -243,19 +253,22 @@ export default function AddTransactionModal() {
               <div className="flex justify-between items-center mb-2">
                 <label className="text-gray-500 text-xs">Összeg (Ft)</label>
                 <div className="flex gap-1.5">
-                  <button onClick={() => cameraRef.current?.click()} disabled={analyzing} className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium active:scale-95 transition-transform disabled:opacity-50" style={{ background: '#f0fdf4', color: '#1a9460', border: '1px solid #86efac' }}>
+                  <button onClick={() => setShowCamera(true)} disabled={analyzing} className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium active:scale-95 transition-transform disabled:opacity-50" style={{ background: '#f0fdf4', color: '#1a9460', border: '1px solid #86efac' }}>
                     <Camera size={12} />
-                    {analyzing ? '...' : 'Blokk fotó'}
+                    {analyzing ? 'Elemzés...' : 'Blokk fotó'}
                   </button>
                   <button onClick={() => galleryRef.current?.click()} disabled={analyzing} className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium active:scale-95 transition-transform disabled:opacity-50" style={{ background: '#f0fdf4', color: '#1a9460', border: '1px solid #86efac' }}>
                     <Image size={12} />
                   </button>
                 </div>
-                <input key={`cam-${fileInputKey}`} ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageCapture(f) }} />
                 <input key={`gal-${fileInputKey}`} ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageCapture(f) }} />
               </div>
               <input type="number" inputMode="numeric" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full text-4xl font-bold text-gray-900 bg-transparent pb-2 focus:outline-none" style={{ borderBottom: '2px solid #1a9460' }} />
-              {scanError && <p className="mt-2 text-xs text-red-500">{scanError}</p>}
+              {scanError && (
+                <div className="mt-2 px-3 py-2 rounded-xl text-sm font-medium text-red-700" style={{ background: '#fef2f2', border: '1px solid #fecaca' }}>
+                  {scanError}
+                </div>
+              )}
             </div>
 
             {/* Category */}
@@ -369,14 +382,56 @@ export default function AddTransactionModal() {
         )}
       </div>
     </div>
+
+    {showCamera && (
+      <CameraCapture
+        onCapture={(file) => { setShowCamera(false); handleImageCapture(file) }}
+        onClose={() => setShowCamera(false)}
+      />
+    )}
+  </>
   )
 }
 
-async function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve((reader.result as string).split(',')[1])
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
+async function compressImage(file: File, maxPx = 1280, quality = 0.85): Promise<string> {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')!
+
+  const tryBitmap = async () => {
+    const bmp = await Promise.race([
+      createImageBitmap(file, { imageOrientation: 'from-image' } as ImageBitmapOptions),
+      new Promise<never>((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000)),
+    ])
+    const scale = Math.min(1, maxPx / Math.max(bmp.width, bmp.height))
+    canvas.width = Math.round(bmp.width * scale)
+    canvas.height = Math.round(bmp.height * scale)
+    ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height)
+    bmp.close()
+  }
+
+  const tryImg = () =>
+    new Promise<void>((resolve, reject) => {
+      const url = URL.createObjectURL(file)
+      const img = new window.Image()
+      const t = setTimeout(() => { URL.revokeObjectURL(url); reject(new Error('Kép betöltés időtúllépés')) }, 8000)
+      img.onload = () => {
+        clearTimeout(t)
+        URL.revokeObjectURL(url)
+        const scale = Math.min(1, maxPx / Math.max(img.width, img.height))
+        canvas.width = Math.round(img.width * scale)
+        canvas.height = Math.round(img.height * scale)
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        resolve()
+      }
+      img.onerror = () => { clearTimeout(t); URL.revokeObjectURL(url); reject(new Error('Nem sikerült betölteni a képet')) }
+      img.src = url
+    })
+
+  try {
+    await tryBitmap()
+  } catch {
+    await tryImg()
+  }
+
+  return canvas.toDataURL('image/jpeg', quality).split(',')[1]
 }
