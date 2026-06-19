@@ -28,6 +28,7 @@ export default function AddTransactionModal() {
   const [description, setDescription] = useState('')
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
   const [analyzing, setAnalyzing] = useState(false)
+  const [fileInputKey, setFileInputKey] = useState(0)
   const [receiptItems, setReceiptItems] = useState<ReceiptLineItem[] | null>(null)
   const [receiptStore, setReceiptStore] = useState('')
   const [editCatIdx, setEditCatIdx] = useState<number | null>(null)
@@ -35,9 +36,10 @@ export default function AddTransactionModal() {
 
   async function handleImageCapture(file: File) {
     setAnalyzing(true)
+    setFileInputKey((k) => k + 1)
     try {
       const base64 = await fileToBase64(file)
-      const result = await analyzeReceipt(base64)
+      const result = await analyzeReceipt(base64, file.type || 'image/jpeg')
       const validIds: string[] = CATEGORIES.map((c) => c.id)
       const items = (result.lineItems ?? []).map((item) => ({
         ...item,
@@ -328,6 +330,7 @@ export default function AddTransactionModal() {
                   {analyzing ? '...' : 'Blokk'}
                 </button>
                 <input
+                  key={fileInputKey}
                   ref={fileRef}
                   type="file"
                   accept="image/*"
@@ -335,7 +338,6 @@ export default function AddTransactionModal() {
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0]
-                    e.target.value = ''
                     if (file) handleImageCapture(file)
                   }}
                 />

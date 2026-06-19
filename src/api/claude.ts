@@ -10,7 +10,7 @@ export interface ReceiptAnalysis {
   totalAmount: number
 }
 
-export async function analyzeReceipt(imageBase64: string): Promise<ReceiptAnalysis> {
+export async function analyzeReceipt(imageBase64: string, mimeType = 'image/jpeg'): Promise<ReceiptAnalysis> {
   const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
   if (!apiKey) throw new Error('NO_API_KEY')
 
@@ -31,7 +31,7 @@ export async function analyzeReceipt(imageBase64: string): Promise<ReceiptAnalys
           content: [
             {
               type: 'image',
-              source: { type: 'base64', media_type: 'image/jpeg', data: imageBase64 },
+              source: { type: 'base64', media_type: mimeType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp', data: imageBase64 },
             },
             {
               type: 'text',
