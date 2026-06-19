@@ -14,7 +14,9 @@ export async function analyzeReceipt(imageBase64: string, mimeType = 'image/jpeg
   const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
   if (!apiKey) throw new Error('NO_API_KEY')
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  let response: Response
+  try {
+    response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -55,12 +57,25 @@ Az amount értékek egész számok forintban. Csak azokat a kategóriákat szere
         },
       ],
     }),
-  })
+    })
+  } catch (e) {
+    throw new Error(`Hálózati hiba: ${(e as Error).message}`)
+  }
 
-  if (!response.ok) throw new Error('API_ERROR')
+  if (!response.ok) {
+    let detail = ''
+    try {
+      const errBody = await response.json()
+      detail = errBody?.error?.message ?? JSON.stringify(errBody)
+    } catch {
+      detail = await response.text().catch(() => '')
+    }
+    throw new Error(`API ${response.status}: ${detail.slice(0, 200)}`)
+  }
 
   const data = await response.json()
-  const text = (data.content[0].text as string).trim()
+  const text = (data?.content?.[0]?.text as string | undefined)?.trim()
+  if (!text) throw new Error('Üres válasz az API-tól')
 
   const jsonMatch = text.match(/\{[\s\S]*\}/)
   if (!jsonMatch) throw new Error('PARSE_ERROR')

@@ -73,11 +73,11 @@ export default function AddTransactionModal() {
     } catch (e: unknown) {
       const err = e as Error
       const msg =
-        err.message === 'NO_API_KEY' ? 'Hiányzó API kulcs' :
-        err.message === 'API_ERROR'  ? 'API hiba – ellenőrizd a hálózatot' :
-        err.message === 'PARSE_ERROR' ? 'Nem sikerült elemezni a blokkot' :
-        `Hiba: ${err.message}`
+        err.message === 'NO_API_KEY' ? 'Hiányzó API kulcs (VITE_ANTHROPIC_API_KEY)' :
+        err.message === 'PARSE_ERROR' ? 'Nem sikerült elemezni a blokkot (rossz válaszformátum)' :
+        err.message
       setScanError(msg)
+      console.error('[blokk-elemzés hiba]', err)
     } finally {
       setAnalyzing(false)
       setFileInputKey((k) => k + 1)

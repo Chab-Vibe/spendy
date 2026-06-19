@@ -32,13 +32,20 @@ export default function CameraCapture({ onCapture, onClose }: Props) {
   function capture() {
     const video = videoRef.current
     if (!video) return
+    if (!video.videoWidth || !video.videoHeight) {
+      setError('A kamera képe még nem töltött be. Várj egy pillanatot, majd próbáld újra.')
+      return
+    }
     const canvas = document.createElement('canvas')
     canvas.width = video.videoWidth
     canvas.height = video.videoHeight
     canvas.getContext('2d')?.drawImage(video, 0, 0)
     canvas.toBlob(
       (blob) => {
-        if (!blob) return
+        if (!blob) {
+          setError('Nem sikerült elkészíteni a fotót. Próbáld újra.')
+          return
+        }
         streamRef.current?.getTracks().forEach((t) => t.stop())
         onCapture(new File([blob], 'photo.jpg', { type: 'image/jpeg' }))
       },
