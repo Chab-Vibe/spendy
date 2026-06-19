@@ -32,6 +32,8 @@ export default function AddTransactionModal() {
   const [analyzing, setAnalyzing] = useState(false)
   const [scanError, setScanError] = useState('')
   const [fileInputKey, setFileInputKey] = useState(0)
+  // Diagnosztika — localStorage-ba is ír, így túléli az oldal-újratöltést (Android tab-kill)
+  const [debug, setDebug] = useState(() => localStorage.getItem('blokk_debug') ?? '')
   const [receiptItems, setReceiptItems] = useState<ReceiptLineItem[] | null>(null)
   const [receiptStore, setReceiptStore] = useState('')
   const [editCatIdx, setEditCatIdx] = useState<number | null>(null)
@@ -47,17 +49,27 @@ export default function AddTransactionModal() {
   const galleryRef = useRef<HTMLInputElement>(null)
   const allCats = [...CATEGORIES, ...customCategories]
 
+  function logDebug(msg: string) {
+    const line = `${new Date().toLocaleTimeString('hu-HU')} · ${msg}`
+    localStorage.setItem('blokk_debug', line)
+    setDebug(line)
+  }
+
   async function handleImageCapture(file: File) {
+    logDebug(`fotó megérkezett: ${Math.round(file.size / 1024)} KB, ${file.type || '?'}`)
     setAnalyzing(true)
     setScanError('')
     try {
+      logDebug('tömörítés...')
       const base64 = await compressImage(file)
+      logDebug(`tömörítve: ${Math.round(base64.length / 1024)} KB → API hívás...`)
       const result = await Promise.race([
         analyzeReceipt(base64, 'image/jpeg'),
         new Promise<never>((_, reject) =>
           setTimeout(() => reject(new Error('Időtúllépés – próbáld újra')), 30000)
         ),
       ])
+      logDebug('API válasz megjött ✓')
       const validIds = allCats.map((c) => c.id)
       const items = (result.lineItems ?? []).map((item) => ({
         ...item,
@@ -76,6 +88,7 @@ export default function AddTransactionModal() {
         err.message === 'PARSE_ERROR' ? 'Nem sikerült elemezni a blokkot (rossz válaszformátum)' :
         err.message
       setScanError(msg)
+      logDebug(`HIBA: ${msg}`)
       console.error('[blokk-elemzés hiba]', err)
     } finally {
       setAnalyzing(false)
@@ -259,13 +272,19 @@ export default function AddTransactionModal() {
                     <Image size={12} />
                   </button>
                 </div>
-                <input key={`cam-${fileInputKey}`} ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageCapture(f) }} />
-                <input key={`gal-${fileInputKey}`} ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageCapture(f) }} />
+                <input key={`cam-${fileInputKey}`} ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageCapture(f); else logDebug('onChange lefutott, de nincs fájl') }} />
+                <input key={`gal-${fileInputKey}`} ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageCapture(f); else logDebug('onChange lefutott, de nincs fájl') }} />
               </div>
               <input type="number" inputMode="numeric" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full text-4xl font-bold text-gray-900 bg-transparent pb-2 focus:outline-none" style={{ borderBottom: '2px solid #1a9460' }} />
               {scanError && (
                 <div className="mt-2 px-3 py-2 rounded-xl text-sm font-medium text-red-700" style={{ background: '#fef2f2', border: '1px solid #fecaca' }}>
                   {scanError}
+                </div>
+              )}
+              {debug && (
+                <div className="mt-2 px-3 py-2 rounded-xl text-[11px] font-mono leading-snug flex items-start gap-2" style={{ background: '#f3f4f6', border: '1px solid #e5e7eb', color: '#374151' }}>
+                  <span className="flex-1 break-all">🔍 {debug}</span>
+                  <button onClick={() => { localStorage.removeItem('blokk_debug'); setDebug('') }} className="text-gray-400 shrink-0">✕</button>
                 </div>
               )}
             </div>
