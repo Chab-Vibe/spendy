@@ -1,0 +1,32 @@
+export default function SpendyLogo({ size = 72 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+      <rect width="400" height="400" rx="84" fill="#146d47"/>
+      <g transform="rotate(-13,200,152)">
+        <rect x="110" y="100" width="180" height="82" rx="11" fill="#0e5c3a"/>
+      </g>
+      <g transform="rotate(-4,200,148)">
+        <rect x="113" y="96" width="174" height="78" rx="11" fill="#177a4e"/>
+        <line x1="128" y1="112" x2="272" y2="112" stroke="#1a9460" strokeWidth="1.2" opacity="0.45"/>
+        <line x1="128" y1="116" x2="272" y2="116" stroke="#1a9460" strokeWidth="0.7" opacity="0.3"/>
+        <line x1="128" y1="158" x2="272" y2="158" stroke="#1a9460" strokeWidth="0.7" opacity="0.3"/>
+        <line x1="128" y1="162" x2="272" y2="162" stroke="#1a9460" strokeWidth="1.2" opacity="0.45"/>
+      </g>
+      <g transform="rotate(6,200,144)">
+        <rect x="116" y="92" width="168" height="74" rx="11" fill="#1fa86a"/>
+        <line x1="130" y1="108" x2="270" y2="108" stroke="#25c47c" strokeWidth="1.2" opacity="0.5"/>
+        <line x1="130" y1="112" x2="270" y2="112" stroke="#25c47c" strokeWidth="0.7" opacity="0.35"/>
+        <line x1="130" y1="150" x2="270" y2="150" stroke="#25c47c" strokeWidth="0.7" opacity="0.35"/>
+        <line x1="130" y1="154" x2="270" y2="154" stroke="#25c47c" strokeWidth="1.2" opacity="0.5"/>
+      </g>
+      <rect x="82" y="170" width="238" height="192" rx="24" fill="#f0f9f5"/>
+      <line x1="106" y1="208" x2="296" y2="208" stroke="#cde8d8" strokeWidth="2"/>
+      <line x1="106" y1="296" x2="296" y2="296" stroke="#cde8d8" strokeWidth="1.5"/>
+      <line x1="106" y1="316" x2="296" y2="316" stroke="#cde8d8" strokeWidth="1.5"/>
+      <text x="201" y="258" textAnchor="middle" dominantBaseline="central"
+            fontFamily="-apple-system,system-ui,'Helvetica Neue',sans-serif"
+            fontWeight="800" fontSize="34" fill="#1a9460" letterSpacing="1">Spendy</text>
+      <rect x="82" y="170" width="238" height="192" rx="24" fill="none" stroke="#d0ead6" strokeWidth="1.5"/>
+    </svg>
+  )
+}

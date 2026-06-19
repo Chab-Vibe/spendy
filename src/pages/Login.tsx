@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
+import SpendyLogo from '../components/SpendyLogo'
 
 const cardStyle = {
   background: '#ffffff',
@@ -56,7 +57,7 @@ export default function Login() {
     <div className="min-h-dvh flex flex-col items-center justify-center px-5 py-14">
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
-          <div className="text-6xl mb-4">💸</div>
+          <div className="mb-4"><SpendyLogo size={80} /></div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2 tracking-tight">Spendy</h1>
           <p className="text-gray-500 text-sm">Háztartási kiadáskövető</p>
         </div>

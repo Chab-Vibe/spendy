@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useStore } from '../store/useStore'
 import type { User } from '../types'
+import SpendyLogo from '../components/SpendyLogo'
 
 const COLORS = ['#a78bfa', '#34d399', '#f87171', '#fbbf24', '#60a5fa', '#f472b6', '#fb923c', '#c084fc']
 
@@ -82,7 +83,7 @@ export default function Onboarding() {
   return (
     <div className="min-h-dvh flex flex-col px-5 py-14">
       <div className="mb-8">
-        <div className="text-5xl mb-5">💸</div>
+        <div className="mb-5"><SpendyLogo size={72} /></div>
         <h1 className="text-4xl font-bold text-gray-900 mb-2 tracking-tight">Spendy</h1>
         <p className="text-gray-500 text-sm leading-relaxed">
           Kiadás-bevétel követő. Először állítsuk be, ki fogja használni!
