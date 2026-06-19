@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { getTransactions } from '../api/storage'
+import { getTransactions, deleteTransaction } from '../api/storage'
 import { useStore } from '../store/useStore'
 import type { Transaction } from '../types'
 import TransactionCard from '../components/transactions/TransactionCard'
+import EditTransactionModal from '../components/transactions/EditTransactionModal'
 import { CATEGORIES } from '../utils/categories'
 import type { Category } from '../types'
 
@@ -25,8 +26,9 @@ const pillInactive = {
 export default function Transactions() {
   const [filter, setFilter] = useState<Category | 'all'>('all')
   const [typeFilter, setTypeFilter] = useState<'all' | 'expense' | 'income'>('all')
-  const dataVersion = useStore((s) => s.dataVersion)
+  const { dataVersion, bumpData } = useStore()
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([])
+  const [editingTx, setEditingTx] = useState<Transaction | null>(null)
 
   useEffect(() => {
     getTransactions().then(setAllTransactions).catch(console.error)
@@ -37,6 +39,11 @@ export default function Transactions() {
     const typeOk = typeFilter === 'all' || t.type === typeFilter
     return catOk && typeOk
   })
+
+  async function handleDelete(id: string) {
+    await deleteTransaction(id)
+    bumpData()
+  }
 
   return (
     <div className="min-h-dvh px-4 pt-14">
@@ -84,9 +91,14 @@ export default function Transactions() {
 
       {filtered.length > 0 ? (
         <div className="rounded-2xl overflow-hidden" style={glassCard}>
-          <div className="divide-y divide-white/8 px-4">
+          <div className="divide-y divide-white/8">
             {filtered.map((t) => (
-              <TransactionCard key={t.id} transaction={t} />
+              <TransactionCard
+                key={t.id}
+                transaction={t}
+                onEdit={() => setEditingTx(t)}
+                onDelete={() => handleDelete(t.id)}
+              />
             ))}
           </div>
         </div>
@@ -95,6 +107,13 @@ export default function Transactions() {
           <div className="text-5xl mb-4">📋</div>
           <p className="text-white/60 text-sm">Nincs tranzakció ebben a szűrőben.</p>
         </div>
+      )}
+
+      {editingTx && (
+        <EditTransactionModal
+          transaction={editingTx}
+          onClose={() => setEditingTx(null)}
+        />
       )}
     </div>
   )

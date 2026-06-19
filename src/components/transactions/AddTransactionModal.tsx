@@ -33,7 +33,8 @@ export default function AddTransactionModal() {
   const [receiptItems, setReceiptItems] = useState<ReceiptLineItem[] | null>(null)
   const [receiptStore, setReceiptStore] = useState('')
   const [editCatIdx, setEditCatIdx] = useState<number | null>(null)
-  const fileRef = useRef<HTMLInputElement>(null)
+  const cameraRef = useRef<HTMLInputElement>(null)
+  const galleryRef = useRef<HTMLInputElement>(null)
 
   async function handleImageCapture(file: File) {
     setAnalyzing(true)
@@ -314,29 +315,41 @@ export default function AddTransactionModal() {
             <div className="mb-5">
               <div className="flex justify-between items-center mb-2">
                 <label className="text-white/50 text-xs">Összeg (Ft)</label>
-                <button
-                  onClick={() => fileRef.current?.click()}
-                  disabled={analyzing}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium active:scale-95 transition-transform disabled:opacity-50"
-                  style={{
-                    background: 'rgba(167,139,250,0.2)',
-                    color: '#c4b5fd',
-                    border: '1px solid rgba(167,139,250,0.3)',
-                  }}
-                >
-                  <Camera size={13} />
-                  {analyzing ? '...' : 'Blokk'}
-                </button>
+                <div className="flex gap-1.5">
+                  <button
+                    onClick={() => cameraRef.current?.click()}
+                    disabled={analyzing}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium active:scale-95 transition-transform disabled:opacity-50"
+                    style={{ background: 'rgba(167,139,250,0.2)', color: '#c4b5fd', border: '1px solid rgba(167,139,250,0.3)' }}
+                  >
+                    <Camera size={12} />
+                    {analyzing ? '...' : 'Kamera'}
+                  </button>
+                  <button
+                    onClick={() => galleryRef.current?.click()}
+                    disabled={analyzing}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium active:scale-95 transition-transform disabled:opacity-50"
+                    style={{ background: 'rgba(167,139,250,0.2)', color: '#c4b5fd', border: '1px solid rgba(167,139,250,0.3)' }}
+                  >
+                    🖼️
+                  </button>
+                </div>
                 <input
-                  key={fileInputKey}
-                  ref={fileRef}
+                  key={`cam-${fileInputKey}`}
+                  ref={cameraRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageCapture(f) }}
+                />
+                <input
+                  key={`gal-${fileInputKey}`}
+                  ref={galleryRef}
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0]
-                    if (file) handleImageCapture(file)
-                  }}
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageCapture(f) }}
                 />
               </div>
               <input

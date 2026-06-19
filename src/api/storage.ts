@@ -34,6 +34,23 @@ export async function deleteTransaction(id: string): Promise<void> {
   if (error) throw error
 }
 
+export async function updateTransaction(
+  id: string,
+  tx: Pick<Transaction, 'type' | 'amount' | 'category' | 'description' | 'date'>,
+): Promise<void> {
+  const { error } = await supabase
+    .from('transactions')
+    .update({
+      type: tx.type,
+      amount: tx.amount,
+      category: tx.category,
+      description: tx.description || null,
+      date: tx.date,
+    })
+    .eq('id', id)
+  if (error) throw error
+}
+
 // ── Recurring templates ───────────────────────────────────────
 
 export async function getRecurringTemplates(): Promise<RecurringTemplate[]> {
